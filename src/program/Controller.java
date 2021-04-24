@@ -4,6 +4,7 @@ import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
 
 public class Controller extends MainController{
 	private Hero hero;
+	
 	@Override
 	protected void setup() {
 		hero = new Hero();

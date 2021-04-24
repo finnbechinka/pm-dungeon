@@ -1,7 +1,15 @@
 package program;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -24,6 +32,7 @@ public class Hero implements IAnimatable, IEntity{
 	private Point position;
 	private DungeonWorld level;
 	private HeroState state;
+	private final static Logger log = Logger.getLogger(Hero.class.getName());
 	
 	/**
 	 * Constructor.
@@ -32,8 +41,48 @@ public class Hero implements IAnimatable, IEntity{
 	 * The hero state gets initialised as IDLE.
 	 */
 	public Hero() {
+		setupLogger();
 		createAnimations();
 		state = HeroState.IDLE;
+	}
+	
+	private void setupLogger() {
+		/*
+		 * LOGGING LEVELS FOR REFERENCE
+		 * 
+		 * SEVERE
+		 * WARNING
+		 * INFO
+		 * CONFIG
+		 * FINE
+		 * FINER
+		 * FINEST
+		 * 
+		 * AND ALL/OFF
+		 */
+		log.setUseParentHandlers(false);
+		
+		LogManager.getLogManager().reset();
+		log.setLevel(Level.ALL);
+		
+		ConsoleHandler consoleHandler = new ConsoleHandler();
+		consoleHandler.setLevel(Level.INFO);
+		log.addHandler(consoleHandler);
+		
+		Date currDate = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy_hh-mm-ss");
+		String fileName = "./logs/log_" + dateFormat.format(currDate).toString() + ".log";
+		try {
+			FileHandler fileHandler = new FileHandler(fileName);
+			fileHandler.setLevel(Level.CONFIG);
+			log.addHandler(fileHandler);
+			log.fine("file logger started");
+			
+		} catch (IOException e) {
+			log.severe("problem while trying to start the file logger");
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private void createAnimations() {
@@ -66,6 +115,7 @@ public class Hero implements IAnimatable, IEntity{
 	public void setLevel(DungeonWorld level) {
 		this.level = level;
 		findRandomPostion();
+		log.info("new level loaded");
 	}
 	
 	/**
@@ -120,28 +170,36 @@ public class Hero implements IAnimatable, IEntity{
 		//set movement speed
 		float movementSpeed;
 		if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+			log.finest("Input: SHIFT_LEFT");
 			movementSpeed = 0.175f;
 		}else {
 			movementSpeed = 0.1f;
 		}
 		
 		//if player tries to move and movement is valid update position
+		state = HeroState.IDLE;
 		Point newPosition = new Point(this.position);
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+			log.finest("Input: W");
 			state = HeroState.RUNNING_FORWARDS;
 			newPosition.y += movementSpeed;			
-		}else if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+			log.finest("Input: S");
 			state = HeroState.RUNNING_BACKWARDS;
 			newPosition.y -= movementSpeed;			
-		}else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+			log.finest("Input: D");
 			state = HeroState.RUNNING_RIGHT;
 			newPosition.x += movementSpeed;			
-		}else if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+		}
+		if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+			log.finest("Input: A");
 			state = HeroState.RUNNING_LEFT;
 			newPosition.x -= movementSpeed;			
-		}else {
-			state = HeroState.IDLE;
 		}
+		
 		if(level.isTileAccessible(newPosition))
 			this.position = newPosition;
 		
