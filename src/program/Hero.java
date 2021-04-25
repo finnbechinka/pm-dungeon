@@ -87,21 +87,21 @@ public class Hero implements IAnimatable, IEntity{
 	
 	private void createAnimations() {
 		ArrayList<Texture> idle = new ArrayList<>();
-		idle.add(new Texture("./assets/textures/characters/hero_idle_1.png"));
-		idle.add(new Texture("./assets/textures/characters/hero.png"));
-		idle.add(new Texture("./assets/textures/characters/hero_idle_2.png"));
-		idle.add(new Texture("./assets/textures/characters/hero.png"));
-		idle.add(new Texture("./assets/textures/characters/hero_idle_1.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_1.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/hero.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_2.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/hero.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_1.png"));
 		animations.put("idle", new Animation(idle,8));
 		
 		ArrayList<Texture> runLeft = new ArrayList<>();
-		runLeft.add(new Texture("./assets/textures/characters/hero_run_left_1.png"));
-		runLeft.add(new Texture("./assets/textures/characters/hero_run_left_2.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/hero_run_left_1.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/hero_run_left_2.png"));
 		animations.put("runLeft", new Animation(runLeft, 8));
 		
 		ArrayList<Texture> runRight = new ArrayList<>();
-		runRight.add(new Texture("./assets/textures/characters/hero_run_right_1.png"));
-		runRight.add(new Texture("./assets/textures/characters/hero_run_right_2.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/hero_run_right_1.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/hero_run_right_2.png"));
 		animations.put("runRight", new Animation(runRight, 8));
 	}
 	
