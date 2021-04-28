@@ -1,5 +1,10 @@
-/.settings
+.settings/
 *.class
 lerntagebuch_und_pdfs/
 javadoc.zip
-/logs
+logs/
+hs_err_pid*
+bin/
+.metadata
+.project
+.classpath
