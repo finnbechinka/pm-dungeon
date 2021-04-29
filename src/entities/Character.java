@@ -1,4 +1,4 @@
-package program;
+package entities;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -17,19 +17,32 @@ import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
 import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
 
 public abstract class Character implements IAnimatable, IEntity{
-	private static Logger log;
-	private Point position;
-	private DungeonWorld level;
-	private CharacterState state;
-	private HashMap<String, Animation> animations;
+	protected static Logger log;
+	protected Point position;
+	protected DungeonWorld level;
+	protected CharacterState state;
+	protected HashMap<String, Animation> animations = new HashMap<>();
+	protected double hp;
+	protected final double baseHp;
+	protected final float baseMovementSpeed;
+	protected float movementSpeed;
+	protected int attackCooldown = 30;
 	
-	public Character() {
+	public Character(double baseHp, float baseMovementSpeed) {
 		setupLogger();
+		this.baseHp = baseHp;
+		this.baseMovementSpeed = baseMovementSpeed;
 		createAnimations();
 		state = CharacterState.IDLE;
 	}
 	
-	private void setupLogger() {
+	public void setState(CharacterState state) {
+		this.state = state;
+	}
+	
+	public abstract boolean isDead();
+	
+	protected void setupLogger() {
 		/*
 		 * LOGGING LEVELS FOR REFERENCE
 		 * 
@@ -43,6 +56,8 @@ public abstract class Character implements IAnimatable, IEntity{
 		 * 
 		 * AND ALL/OFF
 		 */
+		
+		Character.log = Logger.getLogger(Character.class.getName());
 		log.setUseParentHandlers(false);
 		
 		LogManager.getLogManager().reset();
@@ -70,19 +85,51 @@ public abstract class Character implements IAnimatable, IEntity{
 
 	protected abstract void createAnimations();
 	
+	/**
+	 * Sets the level the character is in.
+	 * Also calls {@link #findRandomPostion()}.
+	 * 
+	 * @param level - of type DungeonWorld
+	 * 
+	 */
 	public void setLevel(DungeonWorld level) {
 		this.level = level;
 		setRandomPosition();
 		log.info("new level set");
 	}
 	
+	/**
+	 * Finds and sets a random valid position in the level for the character.
+	 */
 	public void setRandomPosition() {
 		this.position = new Point(level.getRandomPointInDungeon());
 	}
 	
+	/**
+	 * Returns the current position of the character.
+	 * 
+	 * @return the current position of the character
+	 */
+	@Override
 	public Point getPosition() {
 		return this.position;
 	}
+	
+	
+	@Override
+	public Animation getActiveAnimation() {
+		return null;
+	}
+	
+	public void heal(int hp) {
+		this.hp += hp;
+	}
+	
+	public void damage(int dmg) {
+		this.hp -= dmg;
+	}
+	
+	public abstract int attack();
 	
 	
 }

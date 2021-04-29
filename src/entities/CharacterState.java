@@ -1,4 +1,4 @@
-package program;
+package entities;
 
 /**
  * Represents all possible states of characters.
