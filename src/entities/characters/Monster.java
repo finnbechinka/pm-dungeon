@@ -1,4 +1,4 @@
-package entities;
+package entities.characters;
 
 import java.util.Random;
 import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;

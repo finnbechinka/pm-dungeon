@@ -6,9 +6,16 @@ import java.util.ArrayList;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.DungeonWorld;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
-import entities.Hero;
-import entities.Monster;
 import entities.*;
+import entities.characters.CharacterState;
+import entities.characters.Hero;
+import entities.characters.Monster;
+import entities.characters.SlimeMonster;
+import entities.characters.SnakeMonster;
+import entities.items.Chestplate;
+import entities.items.HealthPotion;
+import entities.items.Item;
+import entities.items.Sword;
 
 public class Controller extends MainController{
 	private Hero hero;
@@ -59,6 +66,18 @@ public class Controller extends MainController{
 		entityController.getList().clear();
 		entityController.addEntity(hero);
 		spawnMonsters();
+		
+		Item sword = new Sword();
+		entityController.addEntity(sword);
+		sword.setLevel(levelController.getDungeon());
+		
+		Item chest = new Chestplate();
+		entityController.addEntity(chest);
+		chest.setLevel(levelController.getDungeon());
+		
+		Item potion = new HealthPotion();
+		entityController.addEntity(potion);
+		potion.setLevel(levelController.getDungeon());
 	}
 	
 	public void restartGame() {

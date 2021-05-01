@@ -1,4 +1,4 @@
-package entities;
+package entities.characters;
 
 /**
  * Represents all possible states of characters.

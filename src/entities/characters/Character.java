@@ -1,4 +1,4 @@
-package entities;
+package entities.characters;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
