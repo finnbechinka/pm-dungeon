@@ -122,8 +122,9 @@ public class Hero extends Character implements IAnimatable, IEntity{
 				newPosition.x -= movementSpeed;			
 			}
 			
-			if(level.isTileAccessible(newPosition))
-				this.position = newPosition;
+			if(level.isTileAccessible(newPosition)) {
+				this.position = newPosition;				
+			}
 		}
 		
 		this.draw();
@@ -134,7 +135,7 @@ public class Hero extends Character implements IAnimatable, IEntity{
 		Random rdm = new Random();
 		if(rdm.nextBoolean() && attackCooldown <= 0) {
 			attackCooldown = 20;
-			heal(25);
+			//heal(25);
 			return 50;
 		}else if(attackCooldown <= 0) {
 			attackCooldown = 10;
@@ -180,5 +181,13 @@ public class Hero extends Character implements IAnimatable, IEntity{
 		}else {
 			return false;
 		}
+	}
+	
+	public void setHp(double hp) {
+		this.hp = hp;
+	}
+	
+	public double getBaseHp() {
+		return this.baseHp;
 	}
 }
