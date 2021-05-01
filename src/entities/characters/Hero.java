@@ -34,21 +34,24 @@ public class Hero extends Character implements IAnimatable, IEntity{
 	@Override
 	protected void createAnimations() {
 		ArrayList<Texture> idle = new ArrayList<>();
-		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_1.png"));
-		idle.add(new Texture("./assets/textures/characters/hero/hero.png"));
-		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_2.png"));
-		idle.add(new Texture("./assets/textures/characters/hero/hero.png"));
-		idle.add(new Texture("./assets/textures/characters/hero/hero_idle_1.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/knight_idle_f0.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/knight_idle_f1.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/knight_idle_f2.png"));
+		idle.add(new Texture("./assets/textures/characters/hero/knight_idle_f3.png"));
 		animations.put("idle", new Animation(idle,8));
 		
 		ArrayList<Texture> runLeft = new ArrayList<>();
-		runLeft.add(new Texture("./assets/textures/characters/hero/hero_run_left_1.png"));
-		runLeft.add(new Texture("./assets/textures/characters/hero/hero_run_left_2.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/knight_run_left_f0.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/knight_run_left_f1.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/knight_run_left_f2.png"));
+		runLeft.add(new Texture("./assets/textures/characters/hero/knight_run_left_f3.png"));
 		animations.put("runLeft", new Animation(runLeft, 8));
 		
 		ArrayList<Texture> runRight = new ArrayList<>();
-		runRight.add(new Texture("./assets/textures/characters/hero/hero_run_right_1.png"));
-		runRight.add(new Texture("./assets/textures/characters/hero/hero_run_right_2.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f0.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f1.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f2.png"));
+		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f3.png"));
 		animations.put("runRight", new Animation(runRight, 8));
 	}
 
