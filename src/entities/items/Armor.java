@@ -10,4 +10,7 @@ public abstract class Armor extends Item implements IDrawable, IEntity{
 		this.damageModifier = dmgMod;
 	}
 
+	public double getDmgMod() {
+		return this.damageModifier;
+	}
 }

@@ -15,6 +15,7 @@ import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IAnimatable;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
 import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
+import program.Controller;
 
 public abstract class Character implements IAnimatable, IEntity{
 	protected static Logger log;
@@ -27,6 +28,8 @@ public abstract class Character implements IAnimatable, IEntity{
 	protected final float baseMovementSpeed;
 	protected float movementSpeed;
 	protected int attackCooldown = 30;
+	protected Controller mc;
+	protected int animationTimer = 0;
 	
 	public Character(double baseHp, float baseMovementSpeed) {
 		setupLogger();
@@ -34,6 +37,10 @@ public abstract class Character implements IAnimatable, IEntity{
 		this.baseMovementSpeed = baseMovementSpeed;
 		createAnimations();
 		state = CharacterState.IDLE;
+	}
+	
+	public void setMainController(Controller mc) {
+		this.mc = mc;
 	}
 	
 	public void setState(CharacterState state) {
@@ -121,15 +128,16 @@ public abstract class Character implements IAnimatable, IEntity{
 		return null;
 	}
 	
-	public void heal(int hp) {
+	public void heal(double hp) {
 		this.hp += hp;
 	}
 	
-	public void damage(int dmg) {
+	public void damage(double dmg) {
+		System.out.println("took " + dmg + " dmg");
 		this.hp -= dmg;
 	}
 	
-	public abstract int attack();
+	public abstract double attack();
 	
 	
 }

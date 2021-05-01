@@ -19,13 +19,19 @@ import entities.items.Sword;
 public class Controller extends MainController{
 	private Hero hero;
 	private ArrayList<Monster> monsters = new ArrayList<>();
+	private ArrayList<Item> items = new ArrayList<>();
 	private DungeonWorld startLevel = null;
 	
 	@Override
 	protected void setup() {
 		hero = new Hero();
+		hero.setMainController(this);
 		entityController.addEntity(hero);
 		camera.follow(hero);
+	}
+	
+	public ArrayList<Item> getItemsList() {
+		return items;
 	}
 	
 	@Override
@@ -47,7 +53,6 @@ public class Controller extends MainController{
 				}else {
 					Tile monsterTile = levelController.getDungeon().getTileAt((int)m.getPosition().x, (int)m.getPosition().y);
 					if(monsterTile == heroTile) {
-						m.damage(hero.attack());
 						hero.damage(m.attack());
 					}
 				}
@@ -66,6 +71,8 @@ public class Controller extends MainController{
 		entityController.addEntity(hero);
 		spawnMonsters();
 		
+		
+		
 		Item sword = new Sword();
 		entityController.addEntity(sword);
 		sword.setLevel(levelController.getDungeon());
@@ -77,6 +84,10 @@ public class Controller extends MainController{
 		Item potion = new HealthPotion();
 		entityController.addEntity(potion);
 		potion.setLevel(levelController.getDungeon());
+		
+		items.add(sword);
+		items.add(chest);
+		items.add(potion);
 	}
 	
 	public void restartGame() {
@@ -84,6 +95,7 @@ public class Controller extends MainController{
 			levelController.loadDungeon(startLevel);
 			hero.setState(CharacterState.IDLE);
 			hero.setHp(hero.getBaseHp());
+			hero.getItems().clear();
 		} catch (InvocationTargetException | IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,5 +113,16 @@ public class Controller extends MainController{
 			m.setLevel(levelController.getDungeon());
 		}
 		
+	}
+	
+	public void heroAttack() {
+		Tile heroTile = levelController.getDungeon().getTileAt((int)hero.getPosition().x, (int)hero.getPosition().y);
+		for(Monster m : monsters) {
+			Tile monsterTile = levelController.getDungeon().getTileAt((int)m.getPosition().x, (int)m.getPosition().y);
+			if(monsterTile == heroTile) {
+				m.damage(hero.attack());
+			}
+			
+		}
 	}
 }

@@ -12,7 +12,8 @@ public enum CharacterState {
 	RUNNING_RIGHT("running_right"),
 	RUNNING_FORWARDS("running_forwards"),
 	RUNNING_BACKWARDS("running_backwards"),
-	DEAD("dead");
+	DEAD("dead"),
+	ATTACKING("attacking");
 	
 	private final String val;
 

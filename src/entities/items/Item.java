@@ -44,6 +44,10 @@ public abstract class Item implements IDrawable, IEntity{
 		}
 	}
 	
+	public void setPosition(Point p) {
+		this.position = p;
+	}
+	
 	public void setRandomPosition() {
 		this.position = new Point(level.getRandomPointInDungeon());
 	}

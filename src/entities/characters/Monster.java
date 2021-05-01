@@ -75,7 +75,7 @@ public abstract class Monster extends Character implements IAnimatable, IEntity{
 	}
 
 	@Override
-	public int attack() {
+	public double attack() {
 		Random rdm = new Random();
 		if(rdm.nextBoolean() && attackCooldown <= 0) {
 			Character.log.info("MonsterAttacks");

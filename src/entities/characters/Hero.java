@@ -10,6 +10,10 @@ import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IAnimatable;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
 import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
+import entities.items.Armor;
+import entities.items.Item;
+import entities.items.ItemState;
+import entities.items.Weapon;
 
 /**
  * Represents the games hero.
@@ -18,6 +22,12 @@ import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
  *
  */
 public class Hero extends Character implements IAnimatable, IEntity{
+	private ArrayList<Item> inventory = new ArrayList<Item>();
+	private int inventorySize = 5;
+	private Weapon weaponSlot = null;
+	private Armor armorSlot = null;
+	private int selectedSlot = -1;
+	
 		
 	/**
 	 * Constructor.
@@ -53,6 +63,12 @@ public class Hero extends Character implements IAnimatable, IEntity{
 		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f2.png"));
 		runRight.add(new Texture("./assets/textures/characters/hero/knight_run_right_f3.png"));
 		animations.put("runRight", new Animation(runRight, 8));
+		
+		ArrayList<Texture> attacking = new ArrayList<>();
+		attacking.add(new Texture("./assets/textures/characters/hero/hero_run_left_1.png"));
+		attacking.add(new Texture("./assets/textures/characters/hero/hero_idle_1.png"));
+		attacking.add(new Texture("./assets/textures/characters/hero/hero_run_right_1.png"));
+		animations.put("attacking_lmao", new Animation(attacking, 8));
 	}
 
 	/**
@@ -62,11 +78,13 @@ public class Hero extends Character implements IAnimatable, IEntity{
 	 */
 	@Override
 	public Animation getActiveAnimation() {
-		if(state == CharacterState.RUNNING_FORWARDS || state == CharacterState.RUNNING_RIGHT){
+		if(state == CharacterState.ATTACKING){
+			return animations.get("attacking_lmao");
+		}else if(state == CharacterState.RUNNING_FORWARDS || state == CharacterState.RUNNING_RIGHT){
 			return animations.get("runRight");
 		}else if(state == CharacterState.RUNNING_BACKWARDS || state == CharacterState.RUNNING_LEFT){
 			return animations.get("runLeft");
-		}else{
+		}else {
 			return animations.get("idle");
 		}
 	}
@@ -91,6 +109,7 @@ public class Hero extends Character implements IAnimatable, IEntity{
 			log.info("GAME OVER");
 			state = CharacterState.DEAD;
 		}else {
+			animationTimer--;
 			attackCooldown--;
 			
 			//set movement speed
@@ -101,27 +120,121 @@ public class Hero extends Character implements IAnimatable, IEntity{
 				movementSpeed = 0.1f;
 			}
 			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+				System.out.println("weapon slot: " + weaponSlot);
+				System.out.println("armor slot: " + armorSlot);
+				for(Item i : inventory) {
+					System.out.println("slot " + (inventory.indexOf(i) + 1)  + ": " + i);
+				}
+				String selectedItem = "none";
+				if(selectedSlot != -1 && inventory.size()-1 >= selectedSlot) {
+					selectedItem = inventory.get(selectedSlot).getClass().toString();
+				}
+				System.out.println(selectedItem);
+			}
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && inventory.size() >= 1) {
+				selectedSlot = 0;
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2) && inventory.size() >= 2) {
+				selectedSlot = 1;
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3) && inventory.size() >= 3) {
+				selectedSlot = 2;
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4) && inventory.size() >= 4) {
+				selectedSlot = 3;
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5) && inventory.size() >= 5) {
+				selectedSlot = 4;
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_0)) {
+				selectedSlot = -1;
+			}
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+				if(weaponSlot != null && attackCooldown <= 0) {
+					System.out.println("WHY THO");
+					attackCooldown = weaponSlot.getAttackCooldown();
+				}
+				mc.heroAttack();
+				this.setState(CharacterState.ATTACKING);
+			}
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+				if(selectedSlot != -1) {
+					inventory.get(selectedSlot).setLevel(level);
+					inventory.get(selectedSlot).setPosition(new Point(this.getPosition().x, this.getPosition().y));
+					inventory.get(selectedSlot).setState(ItemState.ON_GROUND);
+					mc.getItemsList().add(inventory.get(selectedSlot));
+					inventory.remove(selectedSlot);
+				}
+			}
+			
+			if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+				Item swappedItem = null;
+				float heroX = this.position.x;
+				float heroY = this.position.y;
+				for(Item i : mc.getItemsList()) {
+					float itemX = i.getPosition().x;
+					float itemY = i.getPosition().y;
+					if(heroX + 1 >= itemX && heroX -1 <= itemX && heroY + 1 >= itemY && heroY - 1 <= itemY) {
+						if(!inventory.contains(i) && inventory.size() < inventorySize && selectedSlot == -1) {
+							inventory.add(i);
+							i.setState(ItemState.IN_INVENTORY);
+							break;
+						}else if(!inventory.contains(i) && selectedSlot != -1) {
+							swappedItem = i;
+							break;
+						}
+					}
+				}
+				if(swappedItem != null) {
+					inventory.get(selectedSlot).setLevel(level);
+					inventory.get(selectedSlot).setPosition(new Point(swappedItem.getPosition().x, swappedItem.getPosition().y));
+					inventory.get(selectedSlot).setState(ItemState.ON_GROUND);
+					mc.getItemsList().add(inventory.get(selectedSlot));
+					inventory.set(selectedSlot, swappedItem);
+					swappedItem.setState(ItemState.IN_INVENTORY);
+				} else if(inventory.size() > 0 && selectedSlot != -1) {
+					if(inventory.get(selectedSlot).getClass().getSuperclass() == entities.items.Weapon.class) {
+						if(weaponSlot == null) {
+							weaponSlot = (Weapon) inventory.get(selectedSlot);
+							inventory.remove(selectedSlot);							
+						}else {
+							Weapon tmpWeapon = (Weapon) inventory.get(selectedSlot);
+							inventory.set(selectedSlot, weaponSlot);
+							weaponSlot = tmpWeapon;
+						}
+					}else if(inventory.get(selectedSlot).getClass().getSuperclass() == entities.items.Armor.class) {
+						if(armorSlot == null) {
+							armorSlot = (Armor) inventory.get(selectedSlot);
+							inventory.remove(selectedSlot);							
+						}else {
+							Armor tmpArmor = (Armor) inventory.get(selectedSlot);
+							inventory.set(selectedSlot, armorSlot);
+							armorSlot = tmpArmor;
+						}
+					}
+				}
+			}
+			
 			//if player tries to move and movement is valid update position
-			state = CharacterState.IDLE;
+			this.setState(CharacterState.IDLE);
 			Point newPosition = new Point(this.position);
 			if(Gdx.input.isKeyPressed(Input.Keys.W)) {
 				log.finest("Input: W");
-				state = CharacterState.RUNNING_FORWARDS;
+				this.setState(CharacterState.RUNNING_FORWARDS);
 				newPosition.y += movementSpeed;			
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.S)) {
 				log.finest("Input: S");
-				state = CharacterState.RUNNING_BACKWARDS;
+				this.setState(CharacterState.RUNNING_BACKWARDS);
 				newPosition.y -= movementSpeed;			
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.D)) {
 				log.finest("Input: D");
-				state = CharacterState.RUNNING_RIGHT;
+				this.setState(CharacterState.RUNNING_RIGHT);
 				newPosition.x += movementSpeed;			
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.A)) {
 				log.finest("Input: A");
-				state = CharacterState.RUNNING_LEFT;
+				this.setState(CharacterState.RUNNING_LEFT);
 				newPosition.x -= movementSpeed;			
 			}
 			
@@ -132,28 +245,52 @@ public class Hero extends Character implements IAnimatable, IEntity{
 		
 		this.draw();
 	}
+	
+	@Override
+	public void setState(CharacterState state) {
+		if(animationTimer <= 0) {
+			this.state = state;
+			if(state == CharacterState.ATTACKING) {
+				animationTimer = 24;
+			}
+		}
+	}
 
 	@Override
-	public int attack() {
+	public double attack() {
+		log.info("hero attacks");
 		Random rdm = new Random();
 		if(rdm.nextBoolean() && attackCooldown <= 0) {
-			attackCooldown = 20;
-			//heal(25);
-			return 50;
+			if(weaponSlot != null) {
+				return weaponSlot.getDmg() * 1.5;
+			}else {
+				
+				attackCooldown = 20;
+				return 10;
+			}
 		}else if(attackCooldown <= 0) {
-			attackCooldown = 10;
-			return 10;
+			if(weaponSlot != null) {
+				return weaponSlot.getDmg();
+			}else {
+				
+				attackCooldown = 10;
+				return 5;
+			}
 		}else {
-			attackCooldown = 5;
 			return 0;
 		}
 	}
 	
 	@Override
-	public void damage(int dmg) {
+	public void damage(double dmg) {
 		if(dmg > 0) {
-			this.hp -= dmg;
-			log.info("HERO TOOK " + dmg + " DMG, HE NOW HAS " + this.hp + " HP!");
+			if(armorSlot != null) {
+				this.hp -= dmg * armorSlot.getDmgMod();
+				log.info("HERO TOOK " + dmg * armorSlot.getDmgMod()+ " DMG, HE NOW HAS " + this.hp + " HP!");	
+			}else {
+				this.hp -= dmg ;
+				log.info("HERO TOOK " + dmg + " DMG, HE NOW HAS " + this.hp + " HP!");				
+			}
 			Point newPosition = new Point(this.position);
 			float knockbackDist = 1f;
 			do {
@@ -192,5 +329,9 @@ public class Hero extends Character implements IAnimatable, IEntity{
 	
 	public double getBaseHp() {
 		return this.baseHp;
+	}
+	
+	public ArrayList<Item> getItems(){
+		return this.inventory;
 	}
 }
