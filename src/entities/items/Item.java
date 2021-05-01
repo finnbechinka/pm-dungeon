@@ -26,7 +26,7 @@ public abstract class Item implements IDrawable, IEntity{
 	@Override
 	public void update() {
 		if(this.state == ItemState.ON_GROUND) {
-			this.draw();
+			this.drawWithScaling(.5f, .5f);
 		}
 	}
 	

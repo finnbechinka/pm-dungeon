@@ -13,10 +13,4 @@ public class Weapon extends Item implements IDrawable, IEntity{
 		this.attackCooldown = attackCooldown;
 	}
 
-	@Override
-	public void update() {
-		if(this.state == ItemState.ON_GROUND) {
-			this.draw();
-		}
-	}
 }

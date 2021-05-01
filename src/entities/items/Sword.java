@@ -6,7 +6,7 @@ public class Sword extends Weapon {
 
 	public Sword() {
 		super(20, 30);
-		this.texture = new Texture("./assets/textures/items/sword.png");
+		this.texture = new Texture("./assets/textures/items/rsz_weapon_regular_sword.png");
 	}
 
 }
