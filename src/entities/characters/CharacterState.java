@@ -7,27 +7,22 @@ package entities.characters;
  * 
  */
 public enum CharacterState {
-	IDLE("idle"),
-	RUNNING_LEFT("running_left"),
-	RUNNING_RIGHT("running_right"),
-	RUNNING_FORWARDS("running_forwards"),
-	RUNNING_BACKWARDS("running_backwards"),
-	DEAD("dead"),
-	ATTACKING("attacking");
-	
+	IDLE("idle"), RUNNING_LEFT("running_left"), RUNNING_RIGHT("running_right"), RUNNING_FORWARDS("running_forwards"),
+	RUNNING_BACKWARDS("running_backwards"), DEAD("dead"), ATTACKING("attacking");
+
 	private final String val;
 
-    private CharacterState(String val) {
-        this.val = val;
-    }
+	private CharacterState(String val) {
+		this.val = val;
+	}
 
-    /**
-     * Returns the elements string value.
-     * 
-     * @return String value of the element.
-     */
-    @Override
-    public String toString() {
-        return val;
-    }
+	/**
+	 * Returns the elements string value.
+	 * 
+	 * @return String value of the element.
+	 */
+	@Override
+	public String toString() {
+		return val;
+	}
 }
