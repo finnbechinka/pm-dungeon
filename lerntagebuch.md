@@ -1,5 +1,5 @@
 ---
-title:  'Lerntagebuch zur Bearbeitung von Blatt 3'
+title:  'Lerntagebuch zur Bearbeitung von Blatt 4'
 author:
 - Finn Bechinka (finn.bechinka@fh-bielefeld.de)
 - Michel Witt (michel-andre.witt@fh-bielefeld.de)
@@ -31,28 +31,31 @@ sowie [Praktikumsblatt "Lerntagebuch"](pm_praktikum.html#lerntagebuch).
 -->
 
 
-# Aufgabe 3 Loot, Taschen und Kisten
+# Aufgabe 3 HUD, Fallen, Erfahrung und Skill
 
 <!--
 Bitte hier die zu lösende Aufgabe kurz in eigenen Worten beschreiben.
 -->
 
-## Aufgabe 3.1 Items  
-* Unterschiedliche Items implementieren 
+## Aufgabe 4.1: HUD  
+* Implementieren eines heads-up display
+  * Lebenspunkte
+  * Inventar
+  * Inhalt von Schatztruhen
 
-## Aufgabe 3.2 Inventar  
-* Begrenztes Inventar implementieren
-* Items sollen fallengelassen werden können
-* Gewisse Items sollen ausgerüstet werden können
-  * Ausgerüstete und Items im Inventar wechseln
-* Der Held soll aktiv (durch Spiele Eingabe) angreifen können
-* Inventar per Tastendruck auf Konsole ausgeben und loggen
+## Aufgabe 4.2: Erfahrung und Skills 
+* Der Held soll durch das bedsiegen von Monstern EXP bekommen
+* Mit genug EXP soll der Held im Level aufsteigen
+* Levelfortschritt soll im HUD angezeigt werden
+* Level sollen belohnungen geben z. B.: mehr HP oder Schaden
+* Auf Level 2 und 5 soll der Held eine neue Fähigkeit erhalten z. B.: Sprinten oder ein Zauber
 
-## Aufgabe 3.3 Schätze und Taschen
-* Schatzkisten implementieren welche im Dungeon verteilt werden
-* Schatzkisten haben ein Inventar mit (zufälligen) Items
-* Wenn der Held auf einem Nachtbarfeld steht soll das Inventar einer Kiste auf der Konsole ausgegeben werden 
-* Taschen implementieren welche mehrere Items eines Typus aufbewahren können
+## 4.3: Fallen
+* Implementieren von Fallen
+* Fallen können ausgelöst werden, wenn ein Held oder ein Monster auf sie tritt
+* Fallen können verschiedene Wirkungen haben z. B.: Schaden verteilen, den Helden Teleportieren oder neue Monster spawnen
+* Fallen können sichtbar oder versteckt sein und nur unter der Wikung eines Zaubertranks oder Zauberspruchs sichtbar sein
+* Fallen können ein oder mehrmals aktivierbar sein
 
 
 # Ansatz und Modellierung
@@ -65,40 +68,25 @@ Bitte hier den Lösungsansatz kurz beschreiben:
 -   Worauf müssen Sie konkret achten?
 -->
 
-## Aufgabe 3.1
+## Aufgabe 4.1
+Für das HUD sollen die HP in form von Text d.h. z. B. 100HP mit hilfe der TextStage instanz textHUD im MainContoller gezeichnet wird. Die angegebenen HP werden durch eine Methode updateHpHud(double hp) aktualisiert, welche von der Held-Klassen aufgerufen wird, wenn der Held schaden nimmt oder geheilt wird.  
+Die visualisierung des Inventars des Helden und der Kisten werden wir über implementierungen des IHudElement Interfaces machen.  
 
-Für die Items möchten wir eigene Klassen für die eigentlichen Items haben z. B.: Schwert oder Heiltrank welche von einer Klasse, welche den Item-Typ repräsentiert, erben. Also die Schwert-Klasse würde von einer Klasse Waffe erben und der Heiltrank von einer Klasse Trank.  
-Diese Item-Typ-Klassen würden nochmal von einer Item-Klasse erben welche alle Items repräsentiert.  
+<img src="./superdupertollehudskizze.png" alt="inventar skizze" width="500"/>)
 
-Items können, wenn sie auf dem Boden liegen (z. B.: fallengelassen worden), eine Position haben in dem Level haben. Dann haben sie noch einen Status z. B.: "in einer Schatzkiste" oder "liegt auf dem Boden". Dann hat das Item für den fall dass, das Item auf dem Boden liegt noch eine Textur.
+## Aufgabe 4.2
+Der Held bekommt eine variable für sein level und eine für die gesammelten exp.  
+Wenn ein Monster getötet wird ruft es eine giveExp(int exp) Methode des Helden auf welche dem helden exp hinzufügt.  
+In der update() methode des helden wird eine checkForLevelup() methode aufgerufen welche überprüft ob der held geforderten exp für das nächste level erreicht hat und wenn ja das level erhöht und die level up belöhnungen austeilt.  
+Auf dem HUD wird das level und die exp anforderungen als text wie die hp ausgegeben, in der form: Level(gesammelte exp/benötigte exp). 
 
-Dann Implementieren wir Waffen, Rüstungen und Tränke.  
-Waffen haben einen Schaden welchen sie machen und eine Angriffsgeschwindigkeit (Cooldown in Frames).  
-Rüstungen haben einen damage modifier (0 < x < 1) mit welchem dem Helden zugefügter schaden multipliziert wird d.h. dmg * dmgMod = actualDmg z. B.: 50 * 0.5 = 25.  
-Tränke haben unterschiedliche Effekte z. B.: Heilung oder speed boost.  
+<img src="./superdupertollehudskizze2.png" alt="inventar skizze" width="500"/>
 
-![image of uml](./items.png)  
+## Aufgabe 4.3
+Für die Fallen erstellen wir eine Klasse Trap welche IDrawable und IEntity implementieren.  
+Unterschiedliche Fallentypen werden dann als unterklasse der Trap Klasse implementiert.  
 
-## Aufgabe 3.2
-
-Um das Inventar zu repräsentieren bekommt der Held eine arraylist vom Typ Item. Die Inventar große beschränken wir erst einmal auf 5.  
-Außerdem bekommt der Held eine variable für eine Rüstung und eine für eine Waffe. Diese repräsentieren die ausgerüsteten Items.   
-Der Spieler soll mit dem Drücken von 1 bis 5 einen Inventar-Slot auswählen können, mit 0 ist kein Item ausgewählt.  
-Wenn der Spieler E drückt soll das Item in dem momentan ausgewählten Slot ausgerüstet oder benutzt werden.  
-Nur ausgerüstete Waffen und Rüstungen haben Einfluss auf den schaden den der Held austeilt oder bekommt.  
-Mit I soll das Inventar auf der Konsole ausgegeben werden.  
-Mit Leertaste soll der Held angreifen.  
-
-## Aufgabe 3.3
-
-Kisten werden von einer eigenen Kiste-Klasse repräsentiert.  
-Wenn der Held kein Item ausgewählt hat und E gedrückt wird soll eine Kiste geöffnet werden, wenn er neben einer steht.  
-Kisten haben wie der Held eine arraylist, in welcher die Items gespeichert sind.  
-Wenn der Held eine Kiste öffnet kann er hier wieder mit 1b Kisten-Größe ein Item auswählen und mit E aufheben/tauschen.  
-Taschen sind ein Item.  
-Der Held bekommt einen Ausrüstung-Slot für jede Art von Taschen d. h. er kann jeweils eine Tasche für Waffen, Rüstungen oder Tränke ausrüsten.  
-Taschen sind wie Kisten, können aber immer mit einer bestimmten Taste geöffnet werden.  
-
+<img src="./traps.png" alt="inventar skizze" width="300"/> 
 
 # Umsetzung
 
@@ -110,35 +98,12 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 -   was war das Ergebnis?
 -->
 
-## 01.05.2021
-
-* Modellierung
-* Aufgabe 3.1
-  * Klassen-Struktur fertig
-  * Nur ein Beispiel-Item per Typ zum Ausprobieren
-* Aufgabe 3.2
-  * Held hat inventory
-  * Held hat Ausrüstungs-Slots (Waffe und Rüstung)
-  * Spieler kann Items droppen
-  * Spieler kann Items ausrüsten und diese auch wechseln
-  * Ausgerüstete Items haben Effekte
-  * Held greift nun nur manuell an
-
-## 02.05.2021
-
-* Aufgabe 3.3
-  * Schatzkisten mit zufälligen Items implementiert
-    * Spieler kann auf Kiste zugreifen, wenn er neben ihr steht
-    * Kisten Inhalt wird auf der Konsole ausgegeben
-    * Spieler kann Items aus der Kiste in sein Inventar nehmen
-  * Taschen implementiert
-    * Taschen nehmen einen Inventarplatz ein
-    * Taschen können wie Kisten geöffnet werden
-    * Speiler kann Items aus der Tasche entnehmen
-    * Spieler kann Items direkt vom Boden in die Tasche aufheben (man kann keine Items aus dem Helden Inventar in Taschen packen)
-    * Taschen können nur eine Art von Item halten (Waffe, Trank, etc.)
-
-
+## 08.05.2021  
+* Modellierung  
+* Aufgabe 4.1
+  * HP werden auf dem HUD ausgegeben und aktualisiert
+  * Held Inventar wird auf dem HUD ausgegeben
+  * Truhen und Taschen Inventar wird auf dem HUD ausgegeben
 
 # Postmortem
 
@@ -149,9 +114,3 @@ kritisch zurück:
 -   Welche Probleme sind bei der Umsetzung Ihres Lösungsansatzes aufgetreten?
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
-
-Wir haben die aufgaben (größtenteils) wie in der Modellierung beschrieben implementiert.
-
-Wir hatten ein paar Probleme wie genau wir die Navigation, und das aufheben und tauschen von Items, durch das Inventar, Kisten und Taschen gestalten aber naja es funktioniert aber wir werden das wohl nochmal überarbeiten, nachdem wir das HUD (in Blatt 4) implementiert haben damit es sich besser anfühlt. 
-
-Aber was wir auf jeden Fall nochmal machen müssen ist den code "aufzuräumen" was auch Logging, Kommentare und die Dokumentation mit umfasst.

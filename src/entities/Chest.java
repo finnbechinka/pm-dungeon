@@ -14,9 +14,12 @@ import entities.items.Chestplate;
 import entities.items.HealthPotion;
 import entities.items.Item;
 import entities.items.Sword;
+import hud.ChestInventoryHud;
+import hud.HudItem;
+import program.Controller;
 
 public class Chest implements IAnimatable, IEntity {
-	private int inventorySize;
+	private Item[] inventory = new Item[4];
 	private Point position;
 	private DungeonWorld level;
 	private Animation closedAnimation;
@@ -25,11 +28,11 @@ public class Chest implements IAnimatable, IEntity {
 	private int animationTimer = 0;
 	private Animation activeAnimation;
 	private ChestState state;
-	private ArrayList<Item> inventory = new ArrayList<>();
+	private Controller mc;
+	private ChestInventoryHud cih = null;
 
-	public Chest(int inventorySize) {
-		this.inventorySize = inventorySize;
-
+	public Chest(Controller mc) {
+		this.mc = mc;
 		generateRandomItems();
 
 		state = ChestState.CLOSED;
@@ -50,17 +53,20 @@ public class Chest implements IAnimatable, IEntity {
 	}
 	
 	private void generateRandomItems() {
-		for(int i = 0; i < inventorySize; i++) {
+		for(int i = 0; i < inventory.length; i++) {
 			Random rdm = new Random();
-			switch(rdm.nextInt(3)) {
+			switch(rdm.nextInt(4)) {
 			case 0:
-				inventory.add(new Sword());
+				inventory[i] = new Sword();
 				break;
 			case 1:
-				inventory.add(new Chestplate());
+				inventory[i] = new Chestplate();
 				break;
 			case 2:
-				inventory.add(new HealthPotion());
+				inventory[i] = new HealthPotion();
+				break;
+			case 3:
+				inventory[i] = null;
 				break;
 			}
 		}
@@ -103,15 +109,46 @@ public class Chest implements IAnimatable, IEntity {
 		return activeAnimation;
 	}
 
-	public ArrayList<Item> openChest() {
+	public Item[] openChest() {
 		if (state == ChestState.CLOSED) {
 			activeAnimation = openingAnimation;
 			animationTimer = 24;
 		}
+		
+		if(cih == null) {
+			cih = new ChestInventoryHud(mc);
+			for(int i = 0; i < inventory.length; i++) {
+				if(inventory[i] != null) {
+					cih.addHudItem(i, inventory[i]);
+				}
+			}
+		}else {
+			cih.removeHudItem(0);
+			cih.removeHudItem(1);
+			cih.removeHudItem(2);
+			cih.removeHudItem(3);
+			for(int i = 0; i < inventory.length; i++) {
+				if(inventory[i] != null) {
+					cih.addHudItem(i, inventory[i]);
+				}
+			}
+		}
+		
+		mc.addHudElement(cih);
 
 		state = ChestState.OPEN;
 
 		return inventory;
+	}
+	
+	public void removeHud() {
+		if(cih != null) {
+			cih.removeHudItem(0);
+			cih.removeHudItem(1);
+			cih.removeHudItem(2);
+			cih.removeHudItem(3);
+			mc.removeHudElement(this.cih);
+		}
 	}
 
 	public ChestState getState() {
