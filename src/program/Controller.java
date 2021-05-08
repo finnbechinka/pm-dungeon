@@ -35,6 +35,7 @@ public class Controller extends MainController {
 	private ArrayList<Bag<?>> bags = new ArrayList<>();
 	private DungeonWorld startLevel = null;
 	private Label hpLabel = null;
+	private Label lvlLabel = null;
 	public HeroInventoryHud hih = new HeroInventoryHud(this);
 
 	@Override
@@ -87,8 +88,10 @@ public class Controller extends MainController {
 		} else {
 			Tile heroTile = levelController.getDungeon().getTileAt((int) hero.getPosition().x,
 					(int) hero.getPosition().y);
+			Monster deadMonster = null;
 			for (Monster m : monsters) {
 				if (m.isDead()) {
+					deadMonster = m;
 					entityController.removeEntity(m);
 				} else {
 					Tile monsterTile = levelController.getDungeon().getTileAt((int) m.getPosition().x,
@@ -97,7 +100,10 @@ public class Controller extends MainController {
 						hero.damage(m.attack());
 					}
 				}
-
+			}
+			if(deadMonster != null) {
+				hero.giveExp(50);
+				monsters.remove(deadMonster);
 			}
 		}
 	}
@@ -190,7 +196,15 @@ public class Controller extends MainController {
 		if(hpLabel != null) {
 			textHUD.removeText(hpLabel);
 		}
-		hpLabel = textHUD.drawText(hpString, "./assets/fonts/ARCADECLASSIC.TTF", Color.RED, 30, 50, 50, 25, 25);
+		hpLabel = textHUD.drawText(hpString, "./assets/fonts/ARCADE.TTF", Color.RED, 30, 50, 50, 25, 25);
+	}
+	
+	public void updateHudLvl(int lvl, int exp, int neededExp) {
+		String lvlString = (Integer.toString(lvl) + " (" + Integer.toString(exp) + "/" + Integer.toString(neededExp) + ")");
+		if(lvlLabel != null) {
+			textHUD.removeText(lvlLabel);
+		}
+		lvlLabel = textHUD.drawText(lvlString, "./assets/fonts/ARCADE.TTF", Color.RED, 30, 50, 50, 25, 400);
 	}
 
 }

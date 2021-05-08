@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 
-import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
 import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IAnimatable;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
@@ -16,9 +15,7 @@ import entities.items.Armor;
 import entities.items.Bag;
 import entities.items.Item;
 import entities.items.ItemState;
-import entities.items.Potion;
 import entities.items.Weapon;
-import hud.HudItem;
 import program.Controller;
 
 /**
@@ -35,6 +32,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private Chest currentChest = null;
 	private Bag<?> currentBag = null;
 	private Slot prevLMB = null;
+	private int lvl = 0;
+	private int exp = 0;
+	private int neededExp = 0;
+	private boolean sprintUnlocked = false;
 
 	/**
 	 * Constructor.
@@ -42,11 +43,50 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	 * Animations get build. The hero state gets initialised as IDLE.
 	 */
 	public Hero(Controller mc) {
-		super(99.2, .1f);
+		super(1000, .1f);
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
 		this.mc = (Controller) mc;
 		mc.updateHudHp(this.hp);
+	}
+	
+	public void giveExp(int exp) {
+		this.exp += exp;
+		checkForLevelUp();
+	}
+	
+	public void checkForLevelUp() {
+		if(exp == 0) {
+			lvl = 1;
+			neededExp = 50;
+			this.baseHp += 10;
+			hp = baseHp;
+		}
+		if(exp == 50) {
+			lvl = 2;
+			neededExp = 100;
+			this.baseHp += 10;
+			hp = baseHp;
+			sprintUnlocked = true;
+		}
+		if(exp == 100) {
+			lvl = 3;
+			neededExp = 150;
+			this.baseHp += 10;
+			hp = baseHp;
+		}
+		if(exp == 150) {
+			lvl = 4;
+			neededExp = 200;
+			this.baseHp += 10;
+			hp = baseHp;
+		}
+		if(exp == 200) {
+			lvl = 5;
+			neededExp = 250;
+			this.baseHp += 10;
+			hp = baseHp;
+		}
 	}
 
 	@Override
@@ -119,6 +159,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			state = CharacterState.DEAD;
 		} else {
 			mc.updateHudHp(this.hp);
+			mc.updateHudLvl(this.lvl, this.exp, this.neededExp);
 			animationTimer--;
 			attackCooldown--;
 
@@ -355,7 +396,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 					}
 				}
 			}
-
+			
+			if(sprintUnlocked && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+				movementSpeed = 0.175f;
+			}else {
+				movementSpeed = baseMovementSpeed;
+			}
 			// if player tries to move and movement is valid update position
 			this.setState(CharacterState.IDLE);
 			Point newPosition = new Point(this.position);
@@ -408,7 +454,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			} else {
 
 				attackCooldown = 20;
-				return 10;
+				return 100;
 			}
 		} else if (attackCooldown <= 0) {
 			if (weaponSlot != null) {

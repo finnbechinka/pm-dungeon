@@ -104,6 +104,13 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
   * HP werden auf dem HUD ausgegeben und aktualisiert
   * Held Inventar wird auf dem HUD ausgegeben
   * Truhen und Taschen Inventar wird auf dem HUD ausgegeben
+* Aufgabe 4.2  
+  * Der Held bekommt für getötete monster exp
+  * mit genug exp steigt er im level auf
+  * level fortschritt wird im hud angezeigt
+  * hp werden mit jedem level erhöht
+  * ab level kann der spieler sprinten
+  * level 5 fähigkeit fehlt noch
 
 # Postmortem
 

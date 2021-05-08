@@ -25,7 +25,7 @@ public abstract class Character implements IAnimatable, IEntity {
 	protected CharacterState state;
 	protected HashMap<String, Animation> animations = new HashMap<>();
 	protected double hp;
-	protected final double baseHp;
+	protected double baseHp;
 	protected final float baseMovementSpeed;
 	protected float movementSpeed;
 	protected int attackCooldown = 30;
