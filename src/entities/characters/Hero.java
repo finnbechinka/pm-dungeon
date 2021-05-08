@@ -234,6 +234,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 							}
 						}
 					} else {
+						System.out.println("chest is empty");
 						currentChest = null;
 					}
 				}
