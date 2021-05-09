@@ -112,6 +112,12 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
   * ab level kann der spieler sprinten
   * level 5 fähigkeit fehlt noch
 
+## 09.05.2021
+* Aufgabe 4.2
+  * Level 5 fähigkeit hinzugefügt
+* Aufgabe 4.3
+  * 
+
 # Postmortem
 
 <!--

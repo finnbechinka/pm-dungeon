@@ -32,10 +32,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private Chest currentChest = null;
 	private Bag<?> currentBag = null;
 	private Slot prevLMB = null;
-	private int lvl = 0;
+	private int lvl = 5;
 	private int exp = 0;
 	private int neededExp = 0;
-	private boolean sprintUnlocked = false;
+	private int tpCooldown = 0;
 
 	/**
 	 * Constructor.
@@ -56,32 +56,25 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	}
 	
 	public void checkForLevelUp() {
-		if(exp == 0) {
-			lvl = 1;
-			neededExp = 50;
-			this.baseHp += 10;
-			hp = baseHp;
-		}
-		if(exp == 50) {
+		if(exp >= 50 && lvl == 1) {
 			lvl = 2;
 			neededExp = 100;
 			this.baseHp += 10;
 			hp = baseHp;
-			sprintUnlocked = true;
 		}
-		if(exp == 100) {
+		if(exp >= 100 && lvl == 2) {
 			lvl = 3;
 			neededExp = 150;
 			this.baseHp += 10;
 			hp = baseHp;
 		}
-		if(exp == 150) {
+		if(exp >= 150 && lvl == 3) {
 			lvl = 4;
 			neededExp = 200;
 			this.baseHp += 10;
 			hp = baseHp;
 		}
-		if(exp == 200) {
+		if(exp >= 200 && lvl == 4) {
 			lvl = 5;
 			neededExp = 250;
 			this.baseHp += 10;
@@ -162,6 +155,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			mc.updateHudLvl(this.lvl, this.exp, this.neededExp);
 			animationTimer--;
 			attackCooldown--;
+			tpCooldown--;
 
 			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
 				selectedSlot = 0;
@@ -397,7 +391,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 				}
 			}
 			
-			if(sprintUnlocked && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+			if(lvl >= 2 && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
 				movementSpeed = 0.175f;
 			}else {
 				movementSpeed = baseMovementSpeed;
@@ -408,21 +402,53 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 				log.finest("Input: W");
 				this.setState(CharacterState.RUNNING_FORWARDS);
+				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+					newPosition.y += 3;
+					if(level.isTileAccessible(newPosition)) {
+						tpCooldown = 300;
+					}else {
+						newPosition.y -= 3;
+					}
+				}
 				newPosition.y += movementSpeed;
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 				log.finest("Input: S");
 				this.setState(CharacterState.RUNNING_BACKWARDS);
+				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+					newPosition.y -= 3;
+					if(level.isTileAccessible(newPosition)) {
+						tpCooldown = 300;
+					}else {
+						newPosition.y += 3;
+					}
+				}
 				newPosition.y -= movementSpeed;
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 				log.finest("Input: D");
 				this.setState(CharacterState.RUNNING_RIGHT);
+				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+					newPosition.x += 3;
+					if(level.isTileAccessible(newPosition)) {
+						tpCooldown = 300;
+					}else {
+						newPosition.x -= 3;
+					}
+				}
 				newPosition.x += movementSpeed;
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 				log.finest("Input: A");
 				this.setState(CharacterState.RUNNING_LEFT);
+				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+					newPosition.x -= 3;
+					if(level.isTileAccessible(newPosition)) {
+						tpCooldown = 300;
+					}else {
+						newPosition.x += 3;
+					}
+				}
 				newPosition.x -= movementSpeed;
 			}
 
