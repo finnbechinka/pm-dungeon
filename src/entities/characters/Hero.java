@@ -32,7 +32,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private Chest currentChest = null;
 	private Bag<?> currentBag = null;
 	private Slot prevLMB = null;
-	private int lvl = 5;
+	private int lvl = 1;
 	private int exp = 0;
 	private int neededExp = 0;
 	private int tpCooldown = 0;
@@ -43,7 +43,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	 * Animations get build. The hero state gets initialised as IDLE.
 	 */
 	public Hero(Controller mc) {
-		super(1000, .1f);
+		super(200, .1f);
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
 		this.mc = (Controller) mc;
@@ -151,8 +151,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			log.info("GAME OVER");
 			state = CharacterState.DEAD;
 		} else {
-			mc.updateHudHp(this.hp);
-			mc.updateHudLvl(this.lvl, this.exp, this.neededExp);
+			//mc.updateHudHp(this.hp);
+			//mc.updateHudLvl(this.lvl, this.exp, this.neededExp);
+			mc.hotfixTesthud(hp, lvl, exp, neededExp);
+			
 			animationTimer--;
 			attackCooldown--;
 			tpCooldown--;

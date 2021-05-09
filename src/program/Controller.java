@@ -4,14 +4,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.DungeonWorld;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.EntityController;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
+import de.fhbielefeld.pmdungeon.vorgaben.graphic.TextStage;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IHUDElement;
 import entities.Chest;
+import entities.SpikeTrap;
+import entities.Trap;
 import entities.characters.CharacterState;
 import entities.characters.Hero;
 import entities.characters.Monster;
@@ -36,7 +40,9 @@ public class Controller extends MainController {
 	private DungeonWorld startLevel = null;
 	private Label hpLabel = null;
 	private Label lvlLabel = null;
+	private Label hotfixlabel = null;
 	public HeroInventoryHud hih = new HeroInventoryHud(this);
+	private ArrayList<Trap> traps = new ArrayList<>();
 
 	@Override
 	protected void setup() {
@@ -89,6 +95,16 @@ public class Controller extends MainController {
 			Tile heroTile = levelController.getDungeon().getTileAt((int) hero.getPosition().x,
 					(int) hero.getPosition().y);
 			Monster deadMonster = null;
+			
+			for(Trap t : traps) {
+				if(t.isActive()) {
+					Tile trapTile = levelController.getDungeon().getTileAt((int) t.getPosition().x, (int) t.getPosition().y);
+					if(trapTile == heroTile) {
+						t.activate(hero);
+					}
+				}
+			}
+			
 			for (Monster m : monsters) {
 				if (m.isDead()) {
 					deadMonster = m;
@@ -113,12 +129,16 @@ public class Controller extends MainController {
 		if (startLevel == null) {
 			startLevel = levelController.getDungeon();
 		}
-		chests.clear();
-		
-		hero.setLevel(levelController.getDungeon());
 		entityController.getList().clear();
-		entityController.addEntity(hero);
-		spawnMonsters();
+		chests.clear();
+		traps.clear();
+		
+		
+
+		Trap spike1 = new SpikeTrap();
+		traps.add(spike1);
+		entityController.addEntity(spike1);
+		spike1.setLevel(levelController.getDungeon());
 
 		Bag<Weapon> wBag = new Bag<>(this);
 		entityController.addEntity(wBag);
@@ -148,6 +168,11 @@ public class Controller extends MainController {
 		items.add(sword);
 		items.add(chestplate);
 		items.add(potion);
+		
+		spawnMonsters();
+		
+		hero.setLevel(levelController.getDungeon());
+		entityController.addEntity(hero);
 	}
 
 	public void restartGame() {
@@ -188,6 +213,19 @@ public class Controller extends MainController {
 			}
 
 		}
+	}
+	
+	public void hotfixTesthud(double hp, int lvl, int exp, int neededExp) {
+		int hpInt = (int) Math.ceil(hp);
+		String hpString = Integer.toString(hpInt);
+		String lvlString = (Integer.toString(lvl) + " (" + Integer.toString(exp) + "/" + Integer.toString(neededExp) + ")");
+		String hotfixstring = lvlString + "\n\n\n\n\n\n\n\n\n\n\n\n" + hpString;
+		
+		if(hotfixlabel != null) {
+			textHUD.removeText(hotfixlabel);
+		}
+		
+		hotfixlabel = textHUD.drawText(hotfixstring, "./assets/fonts/ARCADE.TTF", Color.RED, 30, 50, 50, 25, 200);
 	}
 	
 	public void updateHudHp(double hp) {

@@ -116,7 +116,7 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 * Aufgabe 4.2
   * Level 5 fähigkeit hinzugefügt
 * Aufgabe 4.3
-  * 
+  * fertig
 
 # Postmortem
 
