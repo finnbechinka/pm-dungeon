@@ -44,17 +44,17 @@ Bitte hier die zu lösende Aufgabe kurz in eigenen Worten beschreiben.
   * Inhalt von Schatztruhen
 
 ## Aufgabe 4.2: Erfahrung und Skills 
-* Der Held soll durch das bedsiegen von Monstern EXP bekommen
+* Der Held soll durch das besiegen von Monstern EXP bekommen
 * Mit genug EXP soll der Held im Level aufsteigen
 * Levelfortschritt soll im HUD angezeigt werden
-* Level sollen belohnungen geben z. B.: mehr HP oder Schaden
+* Level sollen Belohnungen geben z. B.: mehr HP oder Schaden
 * Auf Level 2 und 5 soll der Held eine neue Fähigkeit erhalten z. B.: Sprinten oder ein Zauber
 
 ## 4.3: Fallen
 * Implementieren von Fallen
 * Fallen können ausgelöst werden, wenn ein Held oder ein Monster auf sie tritt
 * Fallen können verschiedene Wirkungen haben z. B.: Schaden verteilen, den Helden Teleportieren oder neue Monster spawnen
-* Fallen können sichtbar oder versteckt sein und nur unter der Wikung eines Zaubertranks oder Zauberspruchs sichtbar sein
+* Fallen können sichtbar oder versteckt sein und nur unter der Wirkung eines Zaubertranks oder Zauberspruchs sichtbar sein
 * Fallen können ein oder mehrmals aktivierbar sein
 
 
@@ -69,22 +69,23 @@ Bitte hier den Lösungsansatz kurz beschreiben:
 -->
 
 ## Aufgabe 4.1
-Für das HUD sollen die HP in form von Text d.h. z. B. 100HP mit hilfe der TextStage instanz textHUD im MainContoller gezeichnet wird. Die angegebenen HP werden durch eine Methode updateHpHud(double hp) aktualisiert, welche von der Held-Klassen aufgerufen wird, wenn der Held schaden nimmt oder geheilt wird.  
-Die visualisierung des Inventars des Helden und der Kisten werden wir über implementierungen des IHudElement Interfaces machen.  
+Für das HUD sollen die HP in Form von Text d. h. z. B. 100HP mithilfe der TextStage Instanz textHUD im MainContoller gezeichnet wird.  
+Die angegebenen HP werden durch eine Methode updateHpHud(double hp) aktualisiert, welche von der Held-Klassen aufgerufen wird, wenn der Held Schaden nimmt oder geheilt wird.  
+Die Visualisierung des Inventars des Helden und der Kisten werden wir über Implementierungen des IHudElement Interfaces machen.   
 
 <img src="./superdupertollehudskizze.png" alt="inventar skizze" width="500"/>)
 
 ## Aufgabe 4.2
-Der Held bekommt eine variable für sein level und eine für die gesammelten exp.  
-Wenn ein Monster getötet wird ruft es eine giveExp(int exp) Methode des Helden auf welche dem helden exp hinzufügt.  
-In der update() methode des helden wird eine checkForLevelup() methode aufgerufen welche überprüft ob der held geforderten exp für das nächste level erreicht hat und wenn ja das level erhöht und die level up belöhnungen austeilt.  
-Auf dem HUD wird das level und die exp anforderungen als text wie die hp ausgegeben, in der form: Level(gesammelte exp/benötigte exp). 
+Der Held bekommt eine variable für sein Level und eine für die gesammelten exp.  
+Wenn ein Monster getötet wird, ruft es eine giveExp(int exp) Methode des Helden auf welche dem Helden exp hinzufügt.  
+In der update() Methode des Helden wird eine checkForLevelup() Methode aufgerufen welche überprüft, ob der Held geforderten exp für das nächste Level erreicht hat und wenn ja das Level erhöht und die levelup Belohnungen austeilt.  
+Auf dem HUD wird das Level und die exp Anforderungen als Text wie die hp ausgegeben, in der Form: Level(gesammelte exp/benötigte exp).
 
 <img src="./superdupertollehudskizze2.png" alt="inventar skizze" width="500"/>
 
 ## Aufgabe 4.3
 Für die Fallen erstellen wir eine Klasse Trap welche IDrawable und IEntity implementieren.  
-Unterschiedliche Fallentypen werden dann als unterklasse der Trap Klasse implementiert.  
+Unterschiedliche Fallentypen werden dann als Unterklasse der Trap Klasse implementiert.  
 
 <img src="./traps.png" alt="inventar skizze" width="300"/> 
 
@@ -104,17 +105,18 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
   * HP werden auf dem HUD ausgegeben und aktualisiert
   * Held Inventar wird auf dem HUD ausgegeben
   * Truhen und Taschen Inventar wird auf dem HUD ausgegeben
+  * Items können jetzt mit der Maus anstatt von Tastatur eingaben zwischen den verschiedenen Inventaren bewegt werden
 * Aufgabe 4.2  
-  * Der Held bekommt für getötete monster exp
-  * mit genug exp steigt er im level auf
-  * level fortschritt wird im hud angezeigt
-  * hp werden mit jedem level erhöht
-  * ab level kann der spieler sprinten
-  * level 5 fähigkeit fehlt noch
+  * Der Held bekommt für getötete Monster exp
+  * mit genug exp steigt er im Level auf
+  * Level fortschritt wird im hud angezeigt
+  * hp werden mit jedem Level erhöht
+  * ab Level kann der Spieler sprinten
+  * Level 5 Fähigkeit fehlt noch
 
 ## 09.05.2021
 * Aufgabe 4.2
-  * Level 5 fähigkeit hinzugefügt
+  * Level 5 Fähigkeit hinzugefügt
 * Aufgabe 4.3
   * fertig
 
@@ -127,3 +129,5 @@ kritisch zurück:
 -   Welche Probleme sind bei der Umsetzung Ihres Lösungsansatzes aufgetreten?
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
+
+Dieses Mal hat eigentlich alles gut funktioniert, wir sind zwar hier und da von dem was wir geplant hatten leicht abgewichen aber im Großen und Ganzen sind wir zügig vorangekommen ohne auf größere Probleme zu stoßen.
