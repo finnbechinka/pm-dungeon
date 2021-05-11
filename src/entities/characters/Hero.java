@@ -49,12 +49,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 		this.mc = (Controller) mc;
 		mc.updateHudHp(this.hp);
 	}
-	
+
 	public void giveExp(int exp) {
 		this.exp += exp;
 		checkForLevelUp();
 	}
-	
+
 	public void checkForLevelUp() {
 		if(exp >= 50 && lvl == 1) {
 			lvl = 2;
@@ -131,11 +131,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	}
 
 	/**
-	 * TODO because I don't know yet
+	 * Always return false since there currently is no reason to delete
 	 */
 	@Override
 	public boolean deleteable() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -154,312 +153,409 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			//mc.updateHudHp(this.hp);
 			//mc.updateHudLvl(this.lvl, this.exp, this.neededExp);
 			mc.hotfixTesthud(hp, lvl, exp, neededExp);
-			
+
 			animationTimer--;
 			attackCooldown--;
 			tpCooldown--;
+			
+			checkForCurrentChest();
+			handlePlayerInput();
+		}
 
-			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-				selectedSlot = 0;
-			} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-				selectedSlot = 1;
-			} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-				selectedSlot = 2;
-			} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
-				selectedSlot = 3;
-			} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
-				selectedSlot = 4;
+		this.draw();
+	}
+	
+	/**
+	 * checks for interact input.
+	 * 
+	 * checks for and handles interact input.
+	 * E to interact with chests and items on the ground.
+	 */
+	private void checkForInteractInput() {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+			boolean itemFound = false;
+			Item swappedItem = null;
+			float heroX = this.position.x;
+			float heroY = this.position.y;
+			for (Item i : mc.getItemsList()) {
+				float itemX = i.getPosition().x;
+				float itemY = i.getPosition().y;
+				if (heroX + 1 >= itemX && heroX - 1 <= itemX && heroY + 1 >= itemY && heroY - 1 <= itemY) {
+					itemFound = true;
+					if (inventory.length >= selectedSlot + 1) {
+						if (inventory[selectedSlot] == null) {
+							inventory[selectedSlot] = i;
+						} else {
+							swappedItem = inventory[selectedSlot];
+							swappedItem.setLevel(level);
+							swappedItem.setPosition(new Point(position.x, position.y));
+							swappedItem.setState(ItemState.ON_GROUND);
+							mc.getItemsList().add(swappedItem);
+							mc.hih.removeHudItem(selectedSlot);
+							inventory[selectedSlot] = i;
+						}
+						i.setState(ItemState.IN_INVENTORY);
+						mc.hih.addHudItem(selectedSlot, i);
+						mc.getItemsList().remove(i);
+						break;
+					}
+				}
 			}
 
-			if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-				int clickx = Gdx.input.getX();
-				int clicky = Gdx.input.getY();
-				Slot tmpLMB = null;
-				if (clickx > 233 && clickx < 263 && clicky > 405 && clicky < 427) {
-					tmpLMB = Slot.INVENTORY1;
-				} else if (clickx > 269 && clickx < 302 && clicky > 405 && clicky < 427) {
-					tmpLMB = Slot.INVENTORY2;
-				} else if (clickx > 308 && clickx < 340 && clicky > 405 && clicky < 427) {
-					tmpLMB = Slot.INVENTORY3;
-				} else if (clickx > 347 && clickx < 379 && clicky > 405 && clicky < 427) {
-					tmpLMB = Slot.INVENTORY4;
-				} else if (clickx > 386 && clickx < 417 && clicky > 405 && clicky < 427) {
-					tmpLMB = Slot.INVENTORY5;
-				}
-
-				if (currentChest != null) {
-					if (clickx > 532 && clickx < 560 && clicky > 120 && clicky < 140) {
-						tmpLMB = Slot.CHEST1;
-					} else if (clickx > 560 && clickx < 598 && clicky > 120 && clicky < 140) {
-						tmpLMB = Slot.CHEST2;
-					} else if (clickx > 531 && clickx < 560 && clicky > 97 && clicky < 115) {
-						tmpLMB = Slot.CHEST3;
-					} else if (clickx > 567 && clickx < 598 && clicky > 97 && clicky < 115) {
-						tmpLMB = Slot.CHEST4;
+			if (!itemFound) {
+				for (Chest c : mc.getChestList()) {
+					float chestX = c.getPosition().x;
+					float chestY = c.getPosition().y;
+					if (heroX + 1 >= chestX && heroX - 1 <= chestX && heroY + 1 >= chestY && heroY - 1 <= chestY) {
+						c.openChest();
+						currentChest = c;
 					}
 				}
-
-				if (currentBag != null) {
-					if (clickx > 70 && clickx < 87 && clicky > 120 && clicky < 137) {
-						tmpLMB = Slot.BAG1;
-					} else if (clickx > 92 && clickx < 112 && clicky > 120 && clicky < 137) {
-						tmpLMB = Slot.BAG2;
-					} else if (clickx > 118 && clickx < 138 && clicky > 120 && clicky < 137) {
-						tmpLMB = Slot.BAG3;
-					}
+			}
+		}
+	}
+	
+	/**
+	 * checks for movement input.
+	 * 
+	 * if movement input is detected: tries to change the hero position and does so if movement is valid.
+	 * WASD for movement direction.
+	 * SHIFT for potential movement speed modifier.
+	 */
+	private void checkForMovementInput() {
+		//if hero is level 2 and input is detected apply movement speed modifier
+		if(lvl >= 2 && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+			movementSpeed = 0.175f;
+		}else {
+			movementSpeed = baseMovementSpeed;
+		}
+		
+		//if player tries to move and movement is valid update position
+		this.setState(CharacterState.IDLE);
+		Point newPosition = new Point(this.position);
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+			log.finest("Input: W");
+			this.setState(CharacterState.RUNNING_FORWARDS);
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+				newPosition.y += 3;
+				if(level.isTileAccessible(newPosition)) {
+					tpCooldown = 300;
+				}else {
+					newPosition.y -= 3;
 				}
+			}
+			newPosition.y += movementSpeed;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+			log.finest("Input: S");
+			this.setState(CharacterState.RUNNING_BACKWARDS);
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+				newPosition.y -= 3;
+				if(level.isTileAccessible(newPosition)) {
+					tpCooldown = 300;
+				}else {
+					newPosition.y += 3;
+				}
+			}
+			newPosition.y -= movementSpeed;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+			log.finest("Input: D");
+			this.setState(CharacterState.RUNNING_RIGHT);
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+				newPosition.x += 3;
+				if(level.isTileAccessible(newPosition)) {
+					tpCooldown = 300;
+				}else {
+					newPosition.x -= 3;
+				}
+			}
+			newPosition.x += movementSpeed;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+			log.finest("Input: A");
+			this.setState(CharacterState.RUNNING_LEFT);
+			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
+				newPosition.x -= 3;
+				if(level.isTileAccessible(newPosition)) {
+					tpCooldown = 300;
+				}else {
+					newPosition.x += 3;
+				}
+			}
+			newPosition.x -= movementSpeed;
+		}
 
-				if (prevLMB == null) {
-					prevLMB = tmpLMB;
-				} else {
-					Slot currentLMB = tmpLMB;
-					// check if previous selection was a chest slot
-					if (prevLMB == Slot.CHEST1 || prevLMB == Slot.CHEST2 || prevLMB == Slot.CHEST3
-							|| prevLMB == Slot.CHEST4) {
-						// check if current selection is a inventory slot
-						if (currentLMB == Slot.INVENTORY1 || currentLMB == Slot.INVENTORY2
-								|| currentLMB == Slot.INVENTORY3 || currentLMB == Slot.INVENTORY4
-								|| currentLMB == Slot.INVENTORY5) {
-							int chestIndex = Integer.parseInt(prevLMB.toString());
-							int inventoryIndex = Integer.parseInt(currentLMB.toString());
-							// check if chest slot contains item
-							if (currentChest.openChest()[chestIndex] != null) {
-								// check if inventory slot already contain a item
-								if (inventory[inventoryIndex] != null) {
-									// swap items
-									Item swappedItem = inventory[inventoryIndex];
-									mc.hih.removeHudItem(inventoryIndex);
-									inventory[inventoryIndex] = currentChest.openChest()[chestIndex];
-									currentChest.openChest()[chestIndex] = swappedItem;
-									currentChest.openChest();
-									mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
+		if (level.isTileAccessible(newPosition)) {
+			this.position = newPosition;
+		}
+	}
+	
+	/**
+	 * checks for slot select input.
+	 * 
+	 * if slot select input is detected: change selected slot.
+	 * NUM_1 through NUM_5 sets selectedSlot to 0 through 4.
+	 */
+	private void checkForSlotSelectInput() {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+			selectedSlot = 0;
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+			selectedSlot = 1;
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+			selectedSlot = 2;
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+			selectedSlot = 3;
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+			selectedSlot = 4;
+		}
+	}
 
-								} else {
-									// inventory slot did not contain a item
-									// take item from chest into inventory
-									inventory[inventoryIndex] = currentChest.openChest()[chestIndex];
-									currentChest.openChest()[chestIndex] = null;
-									currentChest.openChest();
-									mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
-								}
+	/**
+	 * checks for LMB and RMB input.
+	 * 
+	 * checks and handles LMB and RMB player input.
+	 * LMB for moving items between inventory slots.
+	 * RMB for using an item in a inventory slot.
+	 */
+	private void checkForMouseInput() {
+		if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+			int clickx = Gdx.input.getX();
+			int clicky = Gdx.input.getY();
+			Slot tmpLMB = null;
+			if (clickx > 233 && clickx < 263 && clicky > 405 && clicky < 427) {
+				tmpLMB = Slot.INVENTORY1;
+			} else if (clickx > 269 && clickx < 302 && clicky > 405 && clicky < 427) {
+				tmpLMB = Slot.INVENTORY2;
+			} else if (clickx > 308 && clickx < 340 && clicky > 405 && clicky < 427) {
+				tmpLMB = Slot.INVENTORY3;
+			} else if (clickx > 347 && clickx < 379 && clicky > 405 && clicky < 427) {
+				tmpLMB = Slot.INVENTORY4;
+			} else if (clickx > 386 && clickx < 417 && clicky > 405 && clicky < 427) {
+				tmpLMB = Slot.INVENTORY5;
+			}
+
+			if (currentChest != null) {
+				if (clickx > 532 && clickx < 560 && clicky > 120 && clicky < 140) {
+					tmpLMB = Slot.CHEST1;
+				} else if (clickx > 560 && clickx < 598 && clicky > 120 && clicky < 140) {
+					tmpLMB = Slot.CHEST2;
+				} else if (clickx > 531 && clickx < 560 && clicky > 97 && clicky < 115) {
+					tmpLMB = Slot.CHEST3;
+				} else if (clickx > 567 && clickx < 598 && clicky > 97 && clicky < 115) {
+					tmpLMB = Slot.CHEST4;
+				}
+			}
+
+			if (currentBag != null) {
+				if (clickx > 70 && clickx < 87 && clicky > 120 && clicky < 137) {
+					tmpLMB = Slot.BAG1;
+				} else if (clickx > 92 && clickx < 112 && clicky > 120 && clicky < 137) {
+					tmpLMB = Slot.BAG2;
+				} else if (clickx > 118 && clickx < 138 && clicky > 120 && clicky < 137) {
+					tmpLMB = Slot.BAG3;
+				}
+			}
+
+			if (prevLMB == null) {
+				prevLMB = tmpLMB;
+			} else {
+				Slot currentLMB = tmpLMB;
+				// check if previous selection was a chest slot
+				if (prevLMB == Slot.CHEST1 || prevLMB == Slot.CHEST2 || prevLMB == Slot.CHEST3
+						|| prevLMB == Slot.CHEST4) {
+					// check if current selection is a inventory slot
+					if (currentLMB == Slot.INVENTORY1 || currentLMB == Slot.INVENTORY2
+							|| currentLMB == Slot.INVENTORY3 || currentLMB == Slot.INVENTORY4
+							|| currentLMB == Slot.INVENTORY5) {
+						int chestIndex = Integer.parseInt(prevLMB.toString());
+						int inventoryIndex = Integer.parseInt(currentLMB.toString());
+						// check if chest slot contains item
+						if (currentChest.openChest()[chestIndex] != null) {
+							// check if inventory slot already contain a item
+							if (inventory[inventoryIndex] != null) {
+								// swap items
+								Item swappedItem = inventory[inventoryIndex];
+								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = currentChest.openChest()[chestIndex];
+								currentChest.openChest()[chestIndex] = swappedItem;
+								currentChest.openChest();
+								mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
+
+							} else {
+								// inventory slot did not contain a item
+								// take item from chest into inventory
+								inventory[inventoryIndex] = currentChest.openChest()[chestIndex];
+								currentChest.openChest()[chestIndex] = null;
+								currentChest.openChest();
+								mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
 							}
 						}
 					}
-					// check if previous selection was a inventory slot
-					if (prevLMB == Slot.INVENTORY1 || prevLMB == Slot.INVENTORY2 || prevLMB == Slot.INVENTORY3
-							|| prevLMB == Slot.INVENTORY4 || prevLMB == Slot.INVENTORY5) {
-						int inventoryIndex = Integer.parseInt(prevLMB.toString());
+				}
+				// check if previous selection was a inventory slot
+				if (prevLMB == Slot.INVENTORY1 || prevLMB == Slot.INVENTORY2 || prevLMB == Slot.INVENTORY3
+						|| prevLMB == Slot.INVENTORY4 || prevLMB == Slot.INVENTORY5) {
+					int inventoryIndex = Integer.parseInt(prevLMB.toString());
+					Item invItem = inventory[inventoryIndex];
+					if(invItem != null) {
 						// check if current selection is a chest slot
 						if (currentLMB == Slot.CHEST1 || currentLMB == Slot.CHEST2 || currentLMB == Slot.CHEST3
 								|| currentLMB == Slot.CHEST4) {
 							int chestIndex = Integer.parseInt(currentLMB.toString());
 							// check if inventory slot contains a item
-							if (inventory[inventoryIndex] != null) {
-								// check if chest slot contains a item
-								if (currentChest.openChest()[chestIndex] != null) {
-									Item swappedItem = currentChest.openChest()[chestIndex];
-									currentChest.openChest()[chestIndex] = inventory[inventoryIndex];
-									currentChest.openChest();
-									mc.hih.removeHudItem(inventoryIndex);
-									inventory[inventoryIndex] = swappedItem;
-									mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
-								} else {
-									currentChest.openChest()[chestIndex] = inventory[inventoryIndex];
-									currentChest.openChest();
-									mc.hih.removeHudItem(inventoryIndex);
-									inventory[inventoryIndex] = null;
-								}
+							// check if chest slot contains a item
+							if (currentChest.openChest()[chestIndex] != null) {
+								Item swappedItem = currentChest.openChest()[chestIndex];
+								currentChest.openChest()[chestIndex] = invItem;
+								currentChest.openChest();
+								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = swappedItem;
+								mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
+							} else {
+								currentChest.openChest()[chestIndex] = invItem;
+								currentChest.openChest();
+								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = null;
 							}
 						}else if(currentLMB == Slot.BAG1 || currentLMB == Slot.BAG2 || currentLMB == Slot.BAG3) {
 							int bagIndex = Integer.parseInt(currentLMB.toString());
 							if(currentBag.getInventory()[bagIndex] != null) {
-								
+								Item swappedItem = currentBag.getInventory()[bagIndex];
+								currentBag.insert(bagIndex, inventory[inventoryIndex]);
+								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = swappedItem;
+								mc.hih.addHudItem(inventoryIndex, inventory[inventoryIndex]);
 							}else {
-								
+								currentBag.insert(bagIndex, inventory[inventoryIndex]);
+								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = null;
+							}
+						}else if(currentLMB == Slot.INVENTORY1 || currentLMB == Slot.INVENTORY2 || currentLMB == Slot.INVENTORY3 || currentLMB == Slot.INVENTORY4 || currentLMB == Slot.INVENTORY5) {
+							int inventoryIndex2 = Integer.parseInt(currentLMB.toString());
+							Item invItem2 = inventory[inventoryIndex2];
+							if(invItem2 != null) {
+								inventory[inventoryIndex2] = invItem;
+								inventory[inventoryIndex] = invItem2;
+								mc.hih.removeHudItem(inventoryIndex);
+								mc.hih.removeHudItem(inventoryIndex2);
+								mc.hih.addHudItem(inventoryIndex, invItem2);
+								mc.hih.addHudItem(inventoryIndex2, invItem);
+							}else {
+								inventory[inventoryIndex2] = invItem;
+								mc.hih.removeHudItem(inventoryIndex);
+								mc.hih.addHudItem(inventoryIndex2, invItem);
 							}
 						}
 					}
-					prevLMB = null;
 				}
+				prevLMB = null;
+			}
+		}
+
+		if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+			int clickx = Gdx.input.getX();
+			int clicky = Gdx.input.getY();
+
+			if (clickx > 233 && clickx < 263 && clicky > 405 && clicky < 427) {
+				useInvItem(Slot.INVENTORY1);
+			} else if (clickx > 269 && clickx < 302 && clicky > 405 && clicky < 427) {
+				useInvItem(Slot.INVENTORY2);
+			} else if (clickx > 308 && clickx < 340 && clicky > 405 && clicky < 427) {
+				useInvItem(Slot.INVENTORY3);
+			} else if (clickx > 347 && clickx < 379 && clicky > 405 && clicky < 427) {
+				useInvItem(Slot.INVENTORY4);
+			} else if (clickx > 386 && clickx < 417 && clicky > 405 && clicky < 427) {
+				useInvItem(Slot.INVENTORY5);
 			}
 
-			if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-				System.out.println("\nx: " + Gdx.input.getX());
-				System.out.println("y: " + Gdx.input.getY());
-				int clickx = Gdx.input.getX();
-				int clicky = Gdx.input.getY();
-
-				if (clickx > 233 && clickx < 263 && clicky > 405 && clicky < 427) {
-					System.out.println("inv slot 1");
-				} else if (clickx > 269 && clickx < 302 && clicky > 405 && clicky < 427) {
-					System.out.println("inv slot 2");
-				} else if (clickx > 308 && clickx < 340 && clicky > 405 && clicky < 427) {
-					System.out.println("inv slot 3");
-				} else if (clickx > 347 && clickx < 379 && clicky > 405 && clicky < 427) {
-					System.out.println("inv slot 4");
-				} else if (clickx > 386 && clickx < 417 && clicky > 405 && clicky < 427) {
-					System.out.println("inv slot 5");
-				}
-
-				if (currentBag != null) {
-					if (clickx > 70 && clickx < 87 && clicky > 120 && clicky < 137) {
-						System.out.println("bag slot 1");
-					} else if (clickx > 92 && clickx < 112 && clicky > 120 && clicky < 137) {
-						System.out.println("bag slot 2");
-					} else if (clickx > 118 && clickx < 138 && clicky > 120 && clicky < 137) {
-						System.out.println("bag slot 3");
-					}
+			if (currentBag != null) {
+				if (clickx > 70 && clickx < 87 && clicky > 120 && clicky < 137) {
+					System.out.println("bag slot 1");
+				} else if (clickx > 92 && clickx < 112 && clicky > 120 && clicky < 137) {
+					System.out.println("bag slot 2");
+				} else if (clickx > 118 && clickx < 138 && clicky > 120 && clicky < 137) {
+					System.out.println("bag slot 3");
 				}
 			}
+		}
+	}
+	
+	private void handlePlayerInput() {
+		checkForMovementInput();
+		checkForSlotSelectInput();
+		checkForInteractInput();
+		checkForMouseInput();
+		
 
-			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-				if (weaponSlot != null && attackCooldown <= 0) {
-					System.out.println("WHY THO");
-					attackCooldown = weaponSlot.getAttackCooldown();
-				}
-				mc.heroAttack();
-				this.setState(CharacterState.ATTACKING);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			if (weaponSlot != null && attackCooldown <= 0) {
+				System.out.println("WHY THO");
+				attackCooldown = weaponSlot.getAttackCooldown();
 			}
+			mc.heroAttack();
+			this.setState(CharacterState.ATTACKING);
+		}
 
-			//drop item in currently selected inventory slot
-			if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
-				if (inventory.length >= selectedSlot + 1) {
-					if(inventory[selectedSlot] != null) {
-						inventory[selectedSlot].setLevel(level);
-						inventory[selectedSlot].setPosition(new Point(this.getPosition().x, this.getPosition().y));
-						inventory[selectedSlot].setState(ItemState.ON_GROUND);
-						mc.getItemsList().add(inventory[selectedSlot]);
-						mc.hih.removeHudItem(selectedSlot);
-						inventory[selectedSlot] = null;
-					}
-				}
-			}
-
-			if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-				//open or close a bag
+		//drop item in currently selected inventory slot
+		if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+			if (inventory.length >= selectedSlot + 1) {
 				if(inventory[selectedSlot] != null) {
-					if(inventory[selectedSlot].getClass() == Bag.class && currentBag == null) {
-						currentBag = (Bag<?>) inventory[selectedSlot];
-						currentBag.showHud();
-					}else {
-						currentBag.removeHud();
-						currentBag = null;
-					}
-				}else if(currentBag != null){
+					inventory[selectedSlot].setLevel(level);
+					inventory[selectedSlot].setPosition(new Point(this.getPosition().x, this.getPosition().y));
+					inventory[selectedSlot].setState(ItemState.ON_GROUND);
+					mc.getItemsList().add(inventory[selectedSlot]);
+					mc.hih.removeHudItem(selectedSlot);
+					inventory[selectedSlot] = null;
+				}
+			}
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+			//open or close a bag
+			if(inventory[selectedSlot] != null) {
+				if(inventory[selectedSlot].getClass() == Bag.class && currentBag == null) {
+					currentBag = (Bag<?>) inventory[selectedSlot];
+					currentBag.showHud();
+				}else {
 					currentBag.removeHud();
 					currentBag = null;
 				}
+			}else if(currentBag != null){
+				currentBag.removeHud();
+				currentBag = null;
 			}
-
-			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-				boolean itemFound = false;
-				Item swappedItem = null;
-				float heroX = this.position.x;
-				float heroY = this.position.y;
-				for (Item i : mc.getItemsList()) {
-					float itemX = i.getPosition().x;
-					float itemY = i.getPosition().y;
-					if (heroX + 1 >= itemX && heroX - 1 <= itemX && heroY + 1 >= itemY && heroY - 1 <= itemY) {
-						itemFound = true;
-						if (inventory.length >= selectedSlot + 1) {
-							if (inventory[selectedSlot] == null) {
-								inventory[selectedSlot] = i;
-							} else {
-								swappedItem = inventory[selectedSlot];
-								swappedItem.setLevel(level);
-								swappedItem.setPosition(new Point(position.x, position.y));
-								swappedItem.setState(ItemState.ON_GROUND);
-								mc.getItemsList().add(swappedItem);
-								mc.hih.removeHudItem(selectedSlot);
-								inventory[selectedSlot] = i;
-							}
-							i.setState(ItemState.IN_INVENTORY);
-							mc.hih.addHudItem(selectedSlot, i);
-							mc.getItemsList().remove(i);
-							break;
-						}
-					}
-				}
-
-				if (!itemFound) {
-					for (Chest c : mc.getChestList()) {
-						float chestX = c.getPosition().x;
-						float chestY = c.getPosition().y;
-						if (heroX + 1 >= chestX && heroX - 1 <= chestX && heroY + 1 >= chestY && heroY - 1 <= chestY) {
-							c.openChest();
-							currentChest = c;
-						}
+		}
+	}
+	
+	/**
+	 * checks if opened chest is still in range
+	 * 
+	 * checks if there was a chest opened previously and if that chest is still within range
+	 * if the chest is not in range anymore:
+	 * removes chest hud and sets currentChest to null
+	 */
+	private void checkForCurrentChest() {
+		if(currentChest != null) {
+			boolean stillAtChest = false;
+			float heroX = this.position.x;
+			float heroY = this.position.y;
+			for (Chest c : mc.getChestList()) {
+				float chestX = c.getPosition().x;
+				float chestY = c.getPosition().y;
+				if (heroX + 1 >= chestX && heroX - 1 <= chestX && heroY + 1 >= chestY && heroY - 1 <= chestY) {
+					if(currentChest == c) {
+						stillAtChest = true;
+						break;
 					}
 				}
 			}
 			
-			if(lvl >= 2 && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-				movementSpeed = 0.175f;
-			}else {
-				movementSpeed = baseMovementSpeed;
-			}
-			// if player tries to move and movement is valid update position
-			this.setState(CharacterState.IDLE);
-			Point newPosition = new Point(this.position);
-			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-				log.finest("Input: W");
-				this.setState(CharacterState.RUNNING_FORWARDS);
-				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
-					newPosition.y += 3;
-					if(level.isTileAccessible(newPosition)) {
-						tpCooldown = 300;
-					}else {
-						newPosition.y -= 3;
-					}
-				}
-				newPosition.y += movementSpeed;
-			}
-			if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-				log.finest("Input: S");
-				this.setState(CharacterState.RUNNING_BACKWARDS);
-				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
-					newPosition.y -= 3;
-					if(level.isTileAccessible(newPosition)) {
-						tpCooldown = 300;
-					}else {
-						newPosition.y += 3;
-					}
-				}
-				newPosition.y -= movementSpeed;
-			}
-			if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-				log.finest("Input: D");
-				this.setState(CharacterState.RUNNING_RIGHT);
-				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
-					newPosition.x += 3;
-					if(level.isTileAccessible(newPosition)) {
-						tpCooldown = 300;
-					}else {
-						newPosition.x -= 3;
-					}
-				}
-				newPosition.x += movementSpeed;
-			}
-			if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-				log.finest("Input: A");
-				this.setState(CharacterState.RUNNING_LEFT);
-				if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && lvl >= 5 && tpCooldown <= 0) {
-					newPosition.x -= 3;
-					if(level.isTileAccessible(newPosition)) {
-						tpCooldown = 300;
-					}else {
-						newPosition.x += 3;
-					}
-				}
-				newPosition.x -= movementSpeed;
-			}
-
-			if (level.isTileAccessible(newPosition)) {
-				this.position = newPosition;
+			if(!stillAtChest) {
+				currentChest.removeHud();
+				currentChest = null;
 			}
 		}
-
-		this.draw();
 	}
 
 	@Override
@@ -549,5 +645,28 @@ public class Hero extends Character implements IAnimatable, IEntity {
 
 	public Item[] getItems() {
 		return this.inventory;
+	}
+
+	private void useInvItem(Slot s) {
+		int slot = Integer.parseInt(s.toString());
+		Item item = inventory[slot];
+		if(item.getClass() == Bag.class) {
+			Bag<?> bag = (Bag<?>) item;
+			if(currentBag == null) {
+				currentBag = bag;
+				bag.showHud();
+			}else {
+				if(currentBag == bag) {
+					bag.removeHud();
+					currentBag = null;
+				}else {
+					currentBag.removeHud();
+					currentBag = bag;
+					bag.showHud();
+				}
+			}
+		}
+
+		//TODO implement usage of other types of items
 	}
 }

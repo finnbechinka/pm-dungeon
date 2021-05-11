@@ -140,12 +140,12 @@ public class Controller extends MainController {
 		entityController.addEntity(spike1);
 		spike1.setLevel(levelController.getDungeon());
 
-		Bag<Weapon> wBag = new Bag<>(this);
-		entityController.addEntity(wBag);
-		wBag.setLevel(levelController.getDungeon());
-		
-		bags.add(wBag);
-		items.add(wBag);
+//		Bag<Weapon> wBag = new Bag<>(this);
+//		entityController.addEntity(wBag);
+//		wBag.setLevel(levelController.getDungeon());
+//		
+//		bags.add(wBag);
+//		items.add(wBag);
 
 		Chest chest = new Chest(this);
 		entityController.addEntity(chest);
