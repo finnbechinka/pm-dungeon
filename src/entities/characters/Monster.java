@@ -16,14 +16,12 @@ public abstract class Monster extends Character implements IAnimatable, IEntity 
 
 	@Override
 	public boolean deleteable() {
-		return false;
-
 		// idk but this shit aint working right
-//		if(state == CharacterState.DEAD) {
-//			return true;
-//		}else {
-//			return false;
-//		}
+		if(state == CharacterState.DEAD) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 	protected void randomMovement() {
@@ -79,7 +77,7 @@ public abstract class Monster extends Character implements IAnimatable, IEntity 
 	public double attack() {
 		Random rdm = new Random();
 		if (rdm.nextBoolean() && attackCooldown <= 0) {
-			Character.log.info("MonsterAttacks");
+			log.info("this monster attacks");
 			attackCooldown = 20;
 			return 25;
 		} else {

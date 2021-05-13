@@ -19,7 +19,7 @@ import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
 import program.Controller;
 
 public abstract class Character implements IAnimatable, IEntity {
-	protected static Logger log;
+	protected static final Logger log = Logger.getLogger(Character.class.getName());
 	protected Point position;
 	protected DungeonWorld level;
 	protected CharacterState state;
@@ -59,29 +59,29 @@ public abstract class Character implements IAnimatable, IEntity {
 		 * AND ALL/OFF
 		 */
 
-		Character.log = Logger.getLogger(Character.class.getName());
 		log.setUseParentHandlers(false);
 
 		LogManager.getLogManager().reset();
 		log.setLevel(Level.ALL);
-
-		ConsoleHandler consoleHandler = new ConsoleHandler();
-		consoleHandler.setLevel(Level.INFO);
-		log.addHandler(consoleHandler);
-
+		
 		Date currDate = new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy_hh-mm-ss");
 		String fileName = "./logs/log_" + dateFormat.format(currDate).toString() + ".log";
 		try {
 			FileHandler fileHandler = new FileHandler(fileName);
-			fileHandler.setLevel(Level.CONFIG);
+			fileHandler.setLevel(Level.ALL);
 			log.addHandler(fileHandler);
 			log.fine("file logger started");
-
+			
 		} catch (IOException e) {
 			log.severe("problem while trying to start the file logger");
 			e.printStackTrace();
 		}
+
+		ConsoleHandler consoleHandler = new ConsoleHandler();
+		consoleHandler.setLevel(Level.INFO);
+		log.addHandler(consoleHandler);
+
 
 	}
 
@@ -96,6 +96,7 @@ public abstract class Character implements IAnimatable, IEntity {
 	public void setLevel(DungeonWorld level) {
 		this.level = level;
 		setRandomPosition();
+		log.fine("new level set");
 	}
 
 	/**
@@ -122,11 +123,13 @@ public abstract class Character implements IAnimatable, IEntity {
 
 	public void heal(double hp) {
 		this.hp += hp;
+		log.info("got healed " + hp);
 	}
 
 	public void damage(double dmg) {
 		System.out.println("took " + dmg + " dmg");
 		this.hp -= dmg;
+		log.info("took damaged " + dmg);
 	}
 
 	public abstract double attack();

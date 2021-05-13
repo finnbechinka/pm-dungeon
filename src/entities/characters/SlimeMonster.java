@@ -12,6 +12,7 @@ public class SlimeMonster extends Monster {
 		super(175, .069f);
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
+		log.info("new slime monster instance created");
 	}
 
 	@Override
@@ -54,6 +55,7 @@ public class SlimeMonster extends Monster {
 	public void update() {
 		if (hp <= 0) {
 			state = CharacterState.DEAD;
+			log.info("this monster is now dead");
 		} else {
 			attackCooldown--;
 			randomMovement();

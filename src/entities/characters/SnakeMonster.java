@@ -12,6 +12,7 @@ public class SnakeMonster extends Monster {
 		super(75, .125f);
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
+		log.info("new snake monster instance created");
 	}
 
 	@Override
@@ -58,6 +59,7 @@ public class SnakeMonster extends Monster {
 	public void update() {
 		if (hp <= 0) {
 			state = CharacterState.DEAD;
+			log.info("this monster is now dead");
 		} else {
 			attackCooldown--;
 			randomMovement();

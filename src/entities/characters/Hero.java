@@ -15,6 +15,7 @@ import entities.items.Armor;
 import entities.items.Bag;
 import entities.items.Item;
 import entities.items.ItemState;
+import entities.items.Potion;
 import entities.items.Weapon;
 import program.Controller;
 
@@ -44,6 +45,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	 */
 	public Hero(Controller mc) {
 		super(200, .1f);
+		log.info("new hero instance created");
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
 		this.mc = (Controller) mc;
@@ -52,10 +54,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 
 	public void giveExp(int exp) {
 		this.exp += exp;
+		log.info("the hero got " + exp + " exp");
 		checkForLevelUp();
 	}
 
 	public void checkForLevelUp() {
+		int lvlBefore = lvl;
 		if(exp >= 50 && lvl == 1) {
 			lvl = 2;
 			neededExp = 100;
@@ -79,6 +83,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			neededExp = 250;
 			this.baseHp += 10;
 			hp = baseHp;
+		}
+		int lvlAfter = lvl;
+		if(lvlBefore != lvlAfter) {
+			log.info("the hero leveled up and it now lvl " + lvl);
 		}
 	}
 
@@ -147,7 +155,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	@Override
 	public void update() {
 		if (hp <= 0) {
-			log.info("GAME OVER");
+			log.info("GAME OVER THE HERO IS DEAD");
 			state = CharacterState.DEAD;
 		} else {
 			//mc.updateHudHp(this.hp);
@@ -163,6 +171,17 @@ public class Hero extends Character implements IAnimatable, IEntity {
 		}
 
 		this.draw();
+	}
+	
+	private void logInventory() {
+		String invString = "hero inventory:";
+		
+		for(int i = 0; i < inventory.length; i++) {
+			if(inventory[i] != null)
+			invString += "\nslot " + i + ": " + inventory[i].getClass().getName();
+		}
+		
+		log.info(invString);
 	}
 	
 	/**
@@ -185,6 +204,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 					if (inventory.length >= selectedSlot + 1) {
 						if (inventory[selectedSlot] == null) {
 							inventory[selectedSlot] = i;
+							log.info("new item picked up");
 						} else {
 							swappedItem = inventory[selectedSlot];
 							swappedItem.setLevel(level);
@@ -193,10 +213,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 							mc.getItemsList().add(swappedItem);
 							mc.hih.removeHudItem(selectedSlot);
 							inventory[selectedSlot] = i;
+							log.info("new item picked up; dropped old one");
 						}
 						i.setState(ItemState.IN_INVENTORY);
 						mc.hih.addHudItem(selectedSlot, i);
 						mc.getItemsList().remove(i);
+						logInventory();
 						break;
 					}
 				}
@@ -444,6 +466,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 							}else {
 								inventory[inventoryIndex2] = invItem;
 								mc.hih.removeHudItem(inventoryIndex);
+								inventory[inventoryIndex] = null;
 								mc.hih.addHudItem(inventoryIndex2, invItem);
 							}
 						}
@@ -490,10 +513,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (weaponSlot != null && attackCooldown <= 0) {
-				System.out.println("WHY THO");
 				attackCooldown = weaponSlot.getAttackCooldown();
 			}
 			mc.heroAttack();
+			log.info("hero attacks");
 			this.setState(CharacterState.ATTACKING);
 		}
 
@@ -650,23 +673,61 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private void useInvItem(Slot s) {
 		int slot = Integer.parseInt(s.toString());
 		Item item = inventory[slot];
-		if(item.getClass() == Bag.class) {
-			Bag<?> bag = (Bag<?>) item;
-			if(currentBag == null) {
-				currentBag = bag;
-				bag.showHud();
-			}else {
-				if(currentBag == bag) {
-					bag.removeHud();
-					currentBag = null;
-				}else {
-					currentBag.removeHud();
+		if(item != null) {
+			if(item.getClass() == Bag.class) {
+				Bag<?> bag = (Bag<?>) item;
+				if(currentBag == null) {
 					currentBag = bag;
 					bag.showHud();
+				}else {
+					if(currentBag == bag) {
+						bag.removeHud();
+						currentBag = null;
+					}else {
+						currentBag.removeHud();
+						currentBag = bag;
+						bag.showHud();
+					}
 				}
+			}else if(item.getClass().getSuperclass() == Potion.class) {
+				Potion p = (Potion) item;
+				p.effect();
+				this.logInventory();
+			}else if(item.getClass().getSuperclass() == Weapon.class) {
+				if(this.weaponSlot == null) {
+					this.weaponSlot = (Weapon) item;
+					mc.heh.changeWeaponHudItem(item);
+					mc.hih.removeHudItem(slot);
+					this.inventory[slot] = null;
+				}else {
+					Item oldWpn = this.weaponSlot;
+					mc.heh.removeWeaponHudItem();
+					this.weaponSlot = (Weapon) item;
+					mc.heh.changeWeaponHudItem(item);
+					mc.hih.removeHudItem(slot);
+					this.inventory[slot] = oldWpn;
+					mc.hih.addHudItem(slot, oldWpn);
+				}
+				log.info("weapon equipped");
+				this.logInventory();
+			}else if(item.getClass().getSuperclass() == Armor.class) {
+				if(this.armorSlot == null) {
+					this.armorSlot = (Armor) item;
+					mc.heh.changeArmorHudItem(item);
+					mc.hih.removeHudItem(slot);
+					this.inventory[slot] = null;
+				}else {
+					Item oldArmor = this.armorSlot;
+					mc.heh.removeArmorHudItem();
+					this.armorSlot = (Armor) item;
+					mc.heh.changeArmorHudItem(item);
+					mc.hih.removeHudItem(slot);
+					this.inventory[slot] = oldArmor;
+					mc.hih.addHudItem(slot, oldArmor);
+				}
+				log.info("weapon equipped");
+				this.logInventory();
 			}
 		}
-
-		//TODO implement usage of other types of items
 	}
 }

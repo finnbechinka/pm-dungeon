@@ -29,6 +29,7 @@ import entities.items.Sword;
 import entities.items.Weapon;
 import hud.BagInventoryHud;
 import hud.ChestInventoryHud;
+import hud.HeroEquipmentHud;
 import hud.HeroInventoryHud;
 
 public class Controller extends MainController {
@@ -42,6 +43,7 @@ public class Controller extends MainController {
 	private Label lvlLabel = null;
 	private Label hotfixlabel = null;
 	public HeroInventoryHud hih = new HeroInventoryHud(this);
+	public HeroEquipmentHud heh = new HeroEquipmentHud(this);
 	private ArrayList<Trap> traps = new ArrayList<>();
 
 	@Override
@@ -51,6 +53,7 @@ public class Controller extends MainController {
 		entityController.addEntity(hero);
 		camera.follow(hero);
 		hud.addHudElement(hih);
+		hud.addHudElement(heh);
 	}
 	
 	public void addHudElement(IHUDElement element) {
