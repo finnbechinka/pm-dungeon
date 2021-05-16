@@ -16,6 +16,7 @@ import entities.SpikeTrap;
 import entities.Trap;
 import entities.characters.Hero;
 import entities.characters.Monster;
+import entities.characters.QReachLvlTwo;
 import entities.characters.SlimeMonster;
 import entities.characters.SnakeMonster;
 import entities.items.Bag;
@@ -25,6 +26,7 @@ import entities.items.Item;
 import entities.items.Sword;
 import hud.HeroEquipmentHud;
 import hud.HeroInventoryHud;
+import quests.IQuest;
 
 public class Controller extends MainController {
 	private Hero hero;
@@ -32,6 +34,7 @@ public class Controller extends MainController {
 	private ArrayList<Item> items = new ArrayList<>();
 	private ArrayList<Chest> chests = new ArrayList<>();
 	private ArrayList<Bag<?>> bags = new ArrayList<>();
+	private ArrayList<IQuest> questGivers = new ArrayList<>();
 	private DungeonWorld startLevel = null;
 	private Label hpLabel = null;
 	private Label lvlLabel = null;
@@ -57,6 +60,10 @@ public class Controller extends MainController {
 	public void removeHudElement(IHUDElement element) {
 		hud.removeHudElement(element);
 	}
+	
+	public ArrayList<IQuest> getQuestGivers(){
+		return this.questGivers;
+	}
 
 	public ArrayList<Item> getItemsList() {
 		return items;
@@ -72,6 +79,10 @@ public class Controller extends MainController {
 	
 	public EntityController getEntityController() {
 		return this.entityController;
+	}
+	
+	public Hero getHero() {
+		return this.hero;
 	}
 
 	@Override
@@ -129,6 +140,12 @@ public class Controller extends MainController {
 		entityController.getList().clear();
 		chests.clear();
 		traps.clear();
+		questGivers.clear();
+		
+		QReachLvlTwo reachLvlTwoQuest = new QReachLvlTwo(100, 0, this);
+		questGivers.add(reachLvlTwoQuest);
+		entityController.addEntity(reachLvlTwoQuest);
+		reachLvlTwoQuest.setLevel(levelController.getDungeon());
 		
 		Trap spike1 = new SpikeTrap();
 		traps.add(spike1);

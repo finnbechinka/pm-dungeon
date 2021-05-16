@@ -1,5 +1,5 @@
 ---
-title:  'Lerntagebuch zur Bearbeitung von Blatt 4'
+title:  'Lerntagebuch zur Bearbeitung von Blatt 5'
 author:
 - Finn Bechinka (finn.bechinka@fh-bielefeld.de)
 - Michel Witt (michel-andre.witt@fh-bielefeld.de)
@@ -31,32 +31,22 @@ sowie [Praktikumsblatt "Lerntagebuch"](pm_praktikum.html#lerntagebuch).
 -->
 
 
-# Aufgabe 3 HUD, Fallen, Erfahrung und Skill
+# Blatt 5 Quests, JUnit
 
 <!--
 Bitte hier die zu lösende Aufgabe kurz in eigenen Worten beschreiben.
 -->
 
-## Aufgabe 4.1: HUD  
-* Implementieren eines heads-up display
-  * Lebenspunkte
-  * Inventar
-  * Inhalt von Schatztruhen
+## Aufgabe 5.1: Quests 
+* Verschiedene Quests implementieren welche der Held erfüllen muss/kann
+* Oberver-Pattern benutzen
+* Für die erfüllung von Quests soll der Held belohnungen erhalten
+* Potenzielle Quests müssen dem Helden angezeigt werden z. B.: NPC
+* Held kann angebotene Quests annehmen oder ablehnen
+* Akitve Quests sollen im HUD angezeigt werden
 
-## Aufgabe 4.2: Erfahrung und Skills 
-* Der Held soll durch das besiegen von Monstern EXP bekommen
-* Mit genug EXP soll der Held im Level aufsteigen
-* Levelfortschritt soll im HUD angezeigt werden
-* Level sollen Belohnungen geben z. B.: mehr HP oder Schaden
-* Auf Level 2 und 5 soll der Held eine neue Fähigkeit erhalten z. B.: Sprinten oder ein Zauber
-
-## 4.3: Fallen
-* Implementieren von Fallen
-* Fallen können ausgelöst werden, wenn ein Held oder ein Monster auf sie tritt
-* Fallen können verschiedene Wirkungen haben z. B.: Schaden verteilen, den Helden Teleportieren oder neue Monster spawnen
-* Fallen können sichtbar oder versteckt sein und nur unter der Wirkung eines Zaubertranks oder Zauberspruchs sichtbar sein
-* Fallen können ein oder mehrmals aktivierbar sein
-
+## Aufgabe 5.2: JUnit
+* Geeignete Testfälle für Quests mit JUnit implementieren
 
 # Ansatz und Modellierung
 
@@ -68,26 +58,12 @@ Bitte hier den Lösungsansatz kurz beschreiben:
 -   Worauf müssen Sie konkret achten?
 -->
 
-## Aufgabe 4.1
-Für das HUD sollen die HP in Form von Text d. h. z. B. 100HP mithilfe der TextStage Instanz textHUD im MainContoller gezeichnet wird.  
-Die angegebenen HP werden durch eine Methode updateHpHud(double hp) aktualisiert, welche von der Held-Klassen aufgerufen wird, wenn der Held Schaden nimmt oder geheilt wird.  
-Die Visualisierung des Inventars des Helden und der Kisten werden wir über Implementierungen des IHudElement Interfaces machen.   
+## Aufgabe 5.1
+Die Quests werden als ein interface Quest implementiert welches dann von anderen klassen implementiert werden z. B.: von einer Klasse, also unterklasse von Character, welche einen NPC darstellt.  
+Der Held bekommt dann eine Liste von Quests welche dann wie im oberserver pattern beschrieben nach proteziell relevanten vorkommnissen z. B.: ein monster stirbt informiert werden.  
 
-<img src="./superdupertollehudskizze.png" alt="inventar skizze" width="500"/>)
-
-## Aufgabe 4.2
-Der Held bekommt eine variable für sein Level und eine für die gesammelten exp.  
-Wenn ein Monster getötet wird, ruft es eine giveExp(int exp) Methode des Helden auf welche dem Helden exp hinzufügt.  
-In der update() Methode des Helden wird eine checkForLevelup() Methode aufgerufen welche überprüft, ob der Held geforderten exp für das nächste Level erreicht hat und wenn ja das Level erhöht und die levelup Belohnungen austeilt.  
-Auf dem HUD wird das Level und die exp Anforderungen als Text wie die hp ausgegeben, in der Form: Level(gesammelte exp/benötigte exp).
-
-<img src="./superdupertollehudskizze2.png" alt="inventar skizze" width="500"/>
-
-## Aufgabe 4.3
-Für die Fallen erstellen wir eine Klasse Trap welche IDrawable und IEntity implementieren.  
-Unterschiedliche Fallentypen werden dann als Unterklasse der Trap Klasse implementiert.  
-
-<img src="./traps.png" alt="inventar skizze" width="300"/> 
+## Aufgabe 5.2
+Sinnvolle Testfälle für die erstellten quests ausdenken und als mit junit testen.
 
 # Umsetzung
 
@@ -99,26 +75,9 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 -   was war das Ergebnis?
 -->
 
-## 08.05.2021  
-* Modellierung  
-* Aufgabe 4.1
-  * HP werden auf dem HUD ausgegeben und aktualisiert
-  * Held Inventar wird auf dem HUD ausgegeben
-  * Truhen und Taschen Inventar wird auf dem HUD ausgegeben
-  * Items können jetzt mit der Maus anstatt von Tastatur eingaben zwischen den verschiedenen Inventaren bewegt werden
-* Aufgabe 4.2  
-  * Der Held bekommt für getötete Monster exp
-  * mit genug exp steigt er im Level auf
-  * Level fortschritt wird im hud angezeigt
-  * hp werden mit jedem Level erhöht
-  * ab Level kann der Spieler sprinten
-  * Level 5 Fähigkeit fehlt noch
-
-## 09.05.2021
-* Aufgabe 4.2
-  * Level 5 Fähigkeit hinzugefügt
-* Aufgabe 4.3
-  * fertig
+## 16.05.2021
+* Modellierung
+* 
 
 # Postmortem
 
@@ -130,4 +89,3 @@ kritisch zurück:
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
 
-Dieses Mal hat eigentlich alles gut funktioniert, wir sind zwar hier und da von dem was wir geplant hatten leicht abgewichen aber im Großen und Ganzen sind wir zügig vorangekommen ohne auf größere Probleme zu stoßen.

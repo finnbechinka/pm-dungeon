@@ -18,6 +18,7 @@ import entities.items.ItemState;
 import entities.items.Potion;
 import entities.items.Weapon;
 import program.Controller;
+import quests.IQuest;
 
 /**
  * Represents the games hero.
@@ -33,10 +34,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private Chest currentChest = null;
 	private Bag<?> currentBag = null;
 	private Slot prevLMB = null;
-	private int lvl = 5;
+	private int lvl = 1;
 	private int exp = 0;
-	private int neededExp = 0;
+	private int neededExp = 50;
 	private int tpCooldown = 0;
+	private IQuest currentQuestGiver = null;
+	private ArrayList<IQuest> quests = new ArrayList<>();
 
 	/**
 	 * Constructor.
@@ -87,6 +90,9 @@ public class Hero extends Character implements IAnimatable, IEntity {
 		int lvlAfter = lvl;
 		if(lvlBefore != lvlAfter) {
 			log.info("the hero leveled up and it now lvl " + lvl);
+			for(IQuest q : quests) {
+				q.updateQuest();
+			}
 		}
 	}
 
@@ -145,6 +151,10 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	public boolean deleteable() {
 		return false;
 	}
+	
+	public int getLvl() {
+		return this.lvl;
+	}
 
 	/**
 	 * Gets called once per frame.
@@ -192,45 +202,62 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	 */
 	private void checkForInteractInput() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-			boolean itemFound = false;
-			Item swappedItem = null;
+			boolean questGiverFound = false;
 			float heroX = this.position.x;
 			float heroY = this.position.y;
-			for (Item i : mc.getItemsList()) {
-				float itemX = i.getPosition().x;
-				float itemY = i.getPosition().y;
-				if (heroX + 1 >= itemX && heroX - 1 <= itemX && heroY + 1 >= itemY && heroY - 1 <= itemY) {
-					itemFound = true;
-					if (inventory.length >= selectedSlot + 1) {
-						if (inventory[selectedSlot] == null) {
-							inventory[selectedSlot] = i;
-							log.info("new item picked up");
-						} else {
-							swappedItem = inventory[selectedSlot];
-							swappedItem.setLevel(level);
-							swappedItem.setPosition(new Point(position.x, position.y));
-							swappedItem.setState(ItemState.ON_GROUND);
-							mc.getItemsList().add(swappedItem);
-							mc.hih.removeHudItem(selectedSlot);
-							inventory[selectedSlot] = i;
-							log.info("new item picked up; dropped old one");
-						}
-						i.setState(ItemState.IN_INVENTORY);
-						mc.hih.addHudItem(selectedSlot, i);
-						mc.getItemsList().remove(i);
-						logInventory();
-						break;
+			
+			for(IQuest q : mc.getQuestGivers()) {
+				if(q.getClass().getSuperclass() == Character.class) {
+					Character c = (Character) q;
+					float cX = c.getPosition().x;
+					float cY = c.getPosition().y;
+					if (!quests.contains(q) && !c.deleteable() && heroX + 1 >= cX && heroX - 1 <= cX && heroY + 1 >= cY && heroY - 1 <= cY) {
+						log.info("quest giver found\n" + q.questDialog() + "\n Accept quest (j,n)");
+						this.currentQuestGiver = q;
+						questGiverFound = true;
 					}
 				}
 			}
-
-			if (!itemFound) {
-				for (Chest c : mc.getChestList()) {
-					float chestX = c.getPosition().x;
-					float chestY = c.getPosition().y;
-					if (heroX + 1 >= chestX && heroX - 1 <= chestX && heroY + 1 >= chestY && heroY - 1 <= chestY) {
-						c.openChest();
-						currentChest = c;
+			
+			if(!questGiverFound) {
+				boolean itemFound = false;
+				Item swappedItem = null;
+				for (Item i : mc.getItemsList()) {
+					float itemX = i.getPosition().x;
+					float itemY = i.getPosition().y;
+					if (heroX + 1 >= itemX && heroX - 1 <= itemX && heroY + 1 >= itemY && heroY - 1 <= itemY) {
+						itemFound = true;
+						if (inventory.length >= selectedSlot + 1) {
+							if (inventory[selectedSlot] == null) {
+								inventory[selectedSlot] = i;
+								log.info("new item picked up");
+							} else {
+								swappedItem = inventory[selectedSlot];
+								swappedItem.setLevel(level);
+								swappedItem.setPosition(new Point(position.x, position.y));
+								swappedItem.setState(ItemState.ON_GROUND);
+								mc.getItemsList().add(swappedItem);
+								mc.hih.removeHudItem(selectedSlot);
+								inventory[selectedSlot] = i;
+								log.info("new item picked up; dropped old one");
+							}
+							i.setState(ItemState.IN_INVENTORY);
+							mc.hih.addHudItem(selectedSlot, i);
+							mc.getItemsList().remove(i);
+							logInventory();
+							break;
+						}
+					}
+				}
+				
+				if (!itemFound) {
+					for (Chest c : mc.getChestList()) {
+						float chestX = c.getPosition().x;
+						float chestY = c.getPosition().y;
+						if (heroX + 1 >= chestX && heroX - 1 <= chestX && heroY + 1 >= chestY && heroY - 1 <= chestY) {
+							c.openChest();
+							currentChest = c;
+						}
 					}
 				}
 			}
@@ -510,6 +537,19 @@ public class Hero extends Character implements IAnimatable, IEntity {
 		checkForInteractInput();
 		checkForMouseInput();
 		
+		if(this.currentQuestGiver != null) {
+			if(Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+				quests.add(currentQuestGiver);
+				currentQuestGiver = null;
+				log.info("quest accepted");
+				for(IQuest q : quests) {
+					q.updateQuest();
+				}
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+				currentQuestGiver = null;
+				log.info("quest denied");
+			}
+		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (weaponSlot != null && attackCooldown <= 0) {

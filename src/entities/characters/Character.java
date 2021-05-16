@@ -11,7 +11,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.DungeonWorld;
-import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
 import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IAnimatable;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
