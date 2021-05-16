@@ -38,12 +38,12 @@ Bitte hier die zu lösende Aufgabe kurz in eigenen Worten beschreiben.
 -->
 
 ## Aufgabe 5.1: Quests 
-* Verschiedene Quests implementieren welche der Held erfüllen muss/kann
-* Oberver-Pattern benutzen
-* Für die erfüllung von Quests soll der Held belohnungen erhalten
+* Verschiedene Quests implementieren, welche der Held erfüllen muss/kann
+* Observer-Pattern benutzen
+* Für die Erfüllung von Quests soll der Held Belohnungen erhalten
 * Potenzielle Quests müssen dem Helden angezeigt werden z. B.: NPC
 * Held kann angebotene Quests annehmen oder ablehnen
-* Akitve Quests sollen im HUD angezeigt werden
+* Aktive Quests sollen im HUD angezeigt werden
 
 ## Aufgabe 5.2: JUnit
 * Geeignete Testfälle für Quests mit JUnit implementieren
@@ -59,11 +59,12 @@ Bitte hier den Lösungsansatz kurz beschreiben:
 -->
 
 ## Aufgabe 5.1
-Die Quests werden als ein interface Quest implementiert welches dann von anderen klassen implementiert werden z. B.: von einer Klasse, also unterklasse von Character, welche einen NPC darstellt.  
-Der Held bekommt dann eine Liste von Quests welche dann wie im oberserver pattern beschrieben nach proteziell relevanten vorkommnissen z. B.: ein monster stirbt informiert werden.  
+Die Quests werden als ein Interface Quest implementiert welches dann von anderen Klassen implementiert werden z. B.: von einer Klasse, also Unterklasse von Character, welche einen NPC darstellt.   
+Der Held bekommt dann eine Liste von Quests welche dann wie im Observer-Pattern beschrieben nach potenziell relevanten Vorkommnissen z. B.: Ein Monster stirbt informiert werden.   
+Daher stellt hier der Held das Observable dar und die Quests die Observer.  
 
 ## Aufgabe 5.2
-Sinnvolle Testfälle für die erstellten quests ausdenken und als mit junit testen.
+Sinnvolle Testfälle für die erstellten Quests ausdenken und als mit JUnit testen.  
 
 # Umsetzung
 
@@ -77,7 +78,13 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 
 ## 16.05.2021
 * Modellierung
-* 
+* Aufgabe 5.1
+  * Quests Implementiert
+  * Der Held bekommt Belohnungen fürs erfüllen von Quests
+  * Quests werden dem Spieler durch das Interagieren mit einem NPC vorgeschlagen und können angenommen/abgelehnt werden
+  * Der Held hat eine listen von aktiven Quests
+* Aufgabe 5.2
+  * JUnit Tests implementiert
 
 # Postmortem
 
@@ -89,3 +96,6 @@ kritisch zurück:
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
 
+Da wir aus persönlichen Gründen erst am Sonntag mit diesem Aufgabenblatt angefangen haben, hatten wir nicht mehr genug Zeit gehabt um den NPC Interaktion Dialog, das Annehmen bzw. Ablehnen von Quests und aktive Quests auf dem HUD auszugeben.  
+Vor allem, weil wir logischerweise das meiste davon als Text auf dem HUD ausgeben müssten aber das im MainController bereitgestellte textHud vom Typ TextStage nicht mehrere Strings in Form von mehreren Labels auf dem Bildschirm ausgeben kann (was es eigentlich laut Dokumentation können sollte) und uns daher einen Workaround ausdenken hätten müssten z. B.: Den ganzen Text in vorm von PNG's auf dem HUD auszugeben was aber zu lange gedauert hätte.  
+Daher läuft bis jetzt noch alles über Konsolenausgaben und wir müssen die HUD ausgaben später machen.
