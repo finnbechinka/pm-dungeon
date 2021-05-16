@@ -33,7 +33,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	private Chest currentChest = null;
 	private Bag<?> currentBag = null;
 	private Slot prevLMB = null;
-	private int lvl = 1;
+	private int lvl = 5;
 	private int exp = 0;
 	private int neededExp = 0;
 	private int tpCooldown = 0;
@@ -599,7 +599,6 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			if (weaponSlot != null) {
 				return weaponSlot.getDmg() * 1.5;
 			} else {
-
 				attackCooldown = 20;
 				return 100;
 			}
@@ -607,7 +606,6 @@ public class Hero extends Character implements IAnimatable, IEntity {
 			if (weaponSlot != null) {
 				return weaponSlot.getDmg();
 			} else {
-
 				attackCooldown = 10;
 				return 5;
 			}

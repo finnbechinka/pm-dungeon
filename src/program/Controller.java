@@ -4,19 +4,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.DungeonWorld;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.EntityController;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
-import de.fhbielefeld.pmdungeon.vorgaben.graphic.TextStage;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IHUDElement;
 import entities.Chest;
 import entities.SpikeTrap;
 import entities.Trap;
-import entities.characters.CharacterState;
 import entities.characters.Hero;
 import entities.characters.Monster;
 import entities.characters.SlimeMonster;
@@ -26,9 +23,6 @@ import entities.items.Chestplate;
 import entities.items.HealthPotion;
 import entities.items.Item;
 import entities.items.Sword;
-import entities.items.Weapon;
-import hud.BagInventoryHud;
-import hud.ChestInventoryHud;
 import hud.HeroEquipmentHud;
 import hud.HeroInventoryHud;
 
@@ -136,8 +130,6 @@ public class Controller extends MainController {
 		chests.clear();
 		traps.clear();
 		
-		
-
 		Trap spike1 = new SpikeTrap();
 		traps.add(spike1);
 		entityController.addEntity(spike1);
@@ -181,7 +173,6 @@ public class Controller extends MainController {
 	public void restartGame() {
 		try {
 			levelController.loadDungeon(startLevel);
-			hero.setState(CharacterState.IDLE);
 			hero.setHp(hero.getBaseHp());
 			hero.getItems()[0] = null;
 			hero.getItems()[1] = null;
@@ -226,6 +217,7 @@ public class Controller extends MainController {
 		
 		if(hotfixlabel != null) {
 			textHUD.removeText(hotfixlabel);
+			
 		}
 		
 		hotfixlabel = textHUD.drawText(hotfixstring, "./assets/fonts/ARCADE.TTF", Color.RED, 30, 50, 50, 25, 200);

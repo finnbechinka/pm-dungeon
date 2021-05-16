@@ -1,8 +1,5 @@
 package entities.items;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.badlogic.gdx.graphics.Texture;
 
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IDrawable;

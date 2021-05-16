@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Sword extends Weapon {
 
 	public Sword() {
-		super(50, 30);
+		super(150, 30);
 		this.texture = new Texture("./assets/textures/items/rsz_weapon_regular_sword.png");
 	}
 
