@@ -1,5 +1,5 @@
 ---
-title:  'Lerntagebuch zur Bearbeitung von Blatt 5'
+title:  'Lerntagebuch zur Bearbeitung von Blatt 6'
 author:
 - Finn Bechinka (finn.bechinka@fh-bielefeld.de)
 - Michel Witt (michel-andre.witt@fh-bielefeld.de)
@@ -31,22 +31,26 @@ sowie [Praktikumsblatt "Lerntagebuch"](pm_praktikum.html#lerntagebuch).
 -->
 
 
-# Blatt 5 Quests, JUnit
+# Blatt 6 Fernkampf, schlaue Monster und Refactoring
 
 <!--
 Bitte hier die zu lösende Aufgabe kurz in eigenen Worten beschreiben.
 -->
 
-## Aufgabe 5.1: Quests 
-* Verschiedene Quests implementieren, welche der Held erfüllen muss/kann
-* Observer-Pattern benutzen
-* Für die Erfüllung von Quests soll der Held Belohnungen erhalten
-* Potenzielle Quests müssen dem Helden angezeigt werden z. B.: NPC
-* Held kann angebotene Quests annehmen oder ablehnen
-* Aktive Quests sollen im HUD angezeigt werden
+## Aufgabe 6.1: Fernkampf 
+* Fernkampf für Helden und Monster implementieren
+* Möglicherweise auch Waffen mit unterschiedlichen Reichweiten
 
-## Aufgabe 5.2: JUnit
-* Geeignete Testfälle für Quests mit JUnit implementieren
+## Aufgabe 6.2: Schlaue Monster
+* Mit hilfe des Strategy-Pattern verschiedene Bewegung und Angriffsstrategien für Monster implementieren (mind. 3)
+* Ein Monster implementieren welchen zwischen Nah- und Fernkampf wechseln kann
+
+## Aufgabe 6.3: Refactoring
+* Projekt aufräumen
+* Kommentare/Dokumentation
+* OOP-Character bendenken
+* In kleinen Schritten vorgehen und für jeden Schritt einen eigenen Commit
+* Kollisionserkennung verbessern
 
 # Ansatz und Modellierung
 
@@ -58,13 +62,55 @@ Bitte hier den Lösungsansatz kurz beschreiben:
 -   Worauf müssen Sie konkret achten?
 -->
 
-## Aufgabe 5.1
-Die Quests werden als ein Interface Quest implementiert welches dann von anderen Klassen implementiert werden z. B.: von einer Klasse, also Unterklasse von Character, welche einen NPC darstellt.   
-Der Held bekommt dann eine Liste von Quests welche dann wie im Observer-Pattern beschrieben nach potenziell relevanten Vorkommnissen z. B.: Ein Monster stirbt informiert werden.   
-Daher stellt hier der Held das Observable dar und die Quests die Observer.  
+## Aufgabe 6.1: Fernkampf 
+Für den Fernkampf werden wir das Kampfsystem so verändern, dass wir nicht mehr die Felder auf welchen der Held und die Monster stehen berücksichtigt werden, sondern die X/Y Koordinaten der Entitäten selber.  
+Dadurch können wir flexibel überprüfen, ob die Position eines Monster der Helden Position +- [Nahkampf/Fernkampf-Distanz] entspricht.  
+Diese Distanz kann dann Monster, Strategie und Helden Ausrüstung abhängig unterschiedlich sein.  
 
-## Aufgabe 5.2
-Sinnvolle Testfälle für die erstellten Quests ausdenken und als mit JUnit testen.  
+Grobe Idee:  
+```java
+boolean isInRange(Character attacker, Character defender){
+  double distance = Math.sqrt(Math.pow(defender.x - attackter.x, 2) 
+                    + Math.pow(defender.y - attackter.y, 2));
+
+  return (distance >= attacker.minRange && distance >= attacker.maxRange) 
+         ? true : false;
+}
+```
+Abgesehen von dieser neuen art zu prüfen ob der gegner in reichweite ist muss an dem rest des Kampssystems nichts verändert werden.  
+
+## Aufgabe 6.2: Schlaue Monster
+* Strategie 1
+  * Idle
+  * Monster bewegt sich zufällig hin und her
+* Strategie 2
+  * Aggro
+  * Wenn das Monster den Helden gesehen hat (keine Wand im weg) bewegt es sich in Richtung des Helden
+* Strategie 3
+  * Melee Attack
+  * Wenn das Monster in Reichweite ist, greift es an
+  * Wenn der Held das Sichtfeld des Monsters verlässt bewegt sich das Monster zur zuletzt bekannten Position des Helden
+
+Die Monster bekommen eine Variable welche die letzte bekannte Position des Helden repräsentiert. Diese Variable wird mit null initialisiert und wieder auf null gesetzt, wenn das Monster den Helden nicht wieder finden kann, nachdem es an die letzte bekannte Position gegangen ist.  
+
+Wenn die letzte Position des Helden null ist, wird Strategie 1 verwendet: Das Monster sucht sich eine zufällige Position im Dungeon und bewegt sich dort hin.  
+
+Wenn eine letzte Position des Helden bekannt ist, wird Strategie 2 verwendet: Das Monster bewegt sich in Richtung des Helden.
+
+Sobald der Held in Reichweite des Monsters ist, wird Strategie 3 verwendet: Das Monster greift an und wenn der Held die Reichweite des Monsters verlässt, wechselt es wieder zu Strategie 2.
+
+Für Monster welche zwischen Nah- und Fernkampf wechseln können sollen, wird je nach Entfernung zum Helden der minRange und maxRange variable passende werte zugewiesen. Das Gleiche passiert auch, wenn der Held eine neue Waffe ausrüstet.
+
+<img src="strategy.png" alt="strategy uml" width="600"/>
+
+## Aufgabe 6.3: Refactoring
+* ggf. Unit Tests schreiben
+* Die einhaltung von Coding Conventions überprüfen
+* Unbenutzten/Mehrfachen code entfernen
+* Kommentare/Dokumentation aktuallisieren
+* Code leserlicher machen z.B.: variablen namen ausbessern und bedingungen vereifnachen
+* Die Klassen Struktur verbessern
+* Datenstruktur der Kollisionserkennung verbessern
 
 # Umsetzung
 
@@ -76,15 +122,16 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 -   was war das Ergebnis?
 -->
 
-## 16.05.2021
-* Modellierung
-* Aufgabe 5.1
-  * Quests Implementiert
-  * Der Held bekommt Belohnungen fürs erfüllen von Quests
-  * Quests werden dem Spieler durch das Interagieren mit einem NPC vorgeschlagen und können angenommen/abgelehnt werden
-  * Der Held hat eine listen von aktiven Quests
-* Aufgabe 5.2
-  * JUnit Tests implementiert
+## 29.05.2021
+* Lerntagebuch/Modellierung
+
+## 30.05.2021
+* Aufgabe 6.1
+  * Neues Nah-/Fernkampf System implementiert
+  * Waffen haben unterschiedliche Reichweiten
+* Aufgabe 6.2
+  * 
+
 
 # Postmortem
 
@@ -96,6 +143,4 @@ kritisch zurück:
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
 
-Da wir aus persönlichen Gründen erst am Sonntag mit diesem Aufgabenblatt angefangen haben, hatten wir nicht mehr genug Zeit gehabt um den NPC Interaktion Dialog, das Annehmen bzw. Ablehnen von Quests und aktive Quests auf dem HUD auszugeben.  
-Vor allem, weil wir logischerweise das meiste davon als Text auf dem HUD ausgeben müssten aber das im MainController bereitgestellte textHud vom Typ TextStage nicht mehrere Strings in Form von mehreren Labels auf dem Bildschirm ausgeben kann (was es eigentlich laut Dokumentation können sollte) und uns daher einen Workaround ausdenken hätten müssten z. B.: Den ganzen Text in vorm von PNG's auf dem HUD auszugeben was aber zu lange gedauert hätte.  
-Daher läuft bis jetzt noch alles über Konsolenausgaben und wir müssen die HUD ausgaben später machen.
+Wir hatten große Probleme die Überprüfung ob ein Monster den Helden sehen kann(bzw. pathfinding) zu implementieren und jetzt haben wir keine Zeit mehr also haben wir Aufgabe 6.2 und 6.3 nicht mehr geschafft.

@@ -12,6 +12,8 @@ public abstract class Item implements IDrawable, IEntity {
 	protected DungeonWorld level;
 	protected Texture texture;
 	protected ItemState state;
+	protected float xscale = .5f;
+	protected float yscale = .5f;
 
 	@Override
 	public Point getPosition() {
@@ -26,7 +28,7 @@ public abstract class Item implements IDrawable, IEntity {
 	@Override
 	public void update() {
 		if (this.state == ItemState.ON_GROUND) {
-			this.drawWithScaling(.5f, .5f);
+			this.drawWithScaling(xscale, yscale);
 		}
 	}
 

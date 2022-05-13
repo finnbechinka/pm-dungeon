@@ -9,8 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.DungeonWorld;
 import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.EntityController;
+import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.LevelController;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IHUDElement;
+import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
 import entities.Chest;
 import entities.SpikeTrap;
 import entities.Trap;
@@ -23,10 +25,12 @@ import entities.items.Bag;
 import entities.items.Chestplate;
 import entities.items.HealthPotion;
 import entities.items.Item;
+import entities.items.Spear;
 import entities.items.Sword;
 import hud.HeroEquipmentHud;
 import hud.HeroInventoryHud;
 import quests.IQuest;
+import entities.characters.Character;
 
 public class Controller extends MainController {
 	private Hero hero;
@@ -118,9 +122,7 @@ public class Controller extends MainController {
 					deadMonster = m;
 					entityController.removeEntity(m);
 				} else {
-					Tile monsterTile = levelController.getDungeon().getTileAt((int) m.getPosition().x,
-							(int) m.getPosition().y);
-					if (monsterTile == heroTile) {
+					if (this.isInRange(m, hero)) {
 						hero.damage(m.attack());
 					}
 				}
@@ -164,6 +166,10 @@ public class Controller extends MainController {
 		chest.setLevel(levelController.getDungeon());
 
 		chests.add(chest);
+		
+		Item spear = new Spear();
+		entityController.addEntity(spear);
+		spear.setLevel(levelController.getDungeon());
 
 		Item sword = new Sword();
 		entityController.addEntity(sword);
@@ -180,6 +186,7 @@ public class Controller extends MainController {
 		items.add(sword);
 		items.add(chestplate);
 		items.add(potion);
+		items.add(spear);
 		
 		spawnMonsters();
 		
@@ -202,24 +209,31 @@ public class Controller extends MainController {
 		}
 	}
 
-	public void spawnMonsters() {
+	public int spawnMonsters() {
 		monsters.clear();
 		monsters.add(new SlimeMonster());
 		monsters.add(new SnakeMonster());
 		monsters.add(new SlimeMonster());
 
+		int x = 0;
+		x = extracted(x);
+		
+		return x;
+	}
+
+	private int extracted(int x) {
 		for (Monster m : monsters) {
 			entityController.addEntity(m);
 			m.setLevel(levelController.getDungeon());
+			m.setMainController(this);
+			x++;
 		}
-
+		return x;
 	}
 
 	public void heroAttack() {
-		Tile heroTile = levelController.getDungeon().getTileAt((int) hero.getPosition().x, (int) hero.getPosition().y);
 		for (Monster m : monsters) {
-			Tile monsterTile = levelController.getDungeon().getTileAt((int) m.getPosition().x, (int) m.getPosition().y);
-			if (monsterTile == heroTile) {
+			if (this.isInRange(hero, m)) {
 				m.damage(hero.attack());
 			}
 
@@ -255,6 +269,15 @@ public class Controller extends MainController {
 			textHUD.removeText(lvlLabel);
 		}
 		lvlLabel = textHUD.drawText(lvlString, "./assets/fonts/ARCADE.TTF", Color.RED, 30, 50, 50, 25, 400);
+	}
+	
+	public boolean isInRange(Character attacker, Character defender) {
+		double distance;
+		Point aPos = attacker.getPosition();
+		Point dPos = defender.getPosition();
+		distance = Math.sqrt(Math.pow(dPos.x - aPos.x, 2) + Math.pow(dPos.y - aPos.y, 2));
+		
+		return (distance >= attacker.getMinRange() && distance <= attacker.getMaxRange()) ? true : false;
 	}
 
 }

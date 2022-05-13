@@ -1,6 +1,15 @@
 package entities.characters;
 
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
+
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.utils.Array;
+
+import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile;
+import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.Tile.Direction;
+import de.fhbielefeld.pmdungeon.vorgaben.dungeonCreator.tiles.TileHeuristic;
 import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IAnimatable;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
@@ -11,6 +20,8 @@ public abstract class Monster extends Character implements IAnimatable, IEntity 
 
 	public Monster(double baseHp, float baseMovementSpeed) {
 		super(baseHp, baseMovementSpeed);
+		this.minRange = 0;
+		this.maxRange = 1.1;
 		movementCooldown = 30;
 	}
 
@@ -84,5 +95,17 @@ public abstract class Monster extends Character implements IAnimatable, IEntity 
 			attackCooldown = 10;
 			return 0;
 		}
+	}
+
+	protected void lookForHero() {
+		Tile myTile = this.level.getTileAt((int)this.position.x, (int)this.position.y);
+		Tile heroTile = this.level.getTileAt((int)mc.getHero().getPosition().x, (int)mc.getHero().getPosition().y);
+		System.out.println(this.checkForObstruction(myTile, heroTile));
+
+	}
+
+	protected boolean checkForObstruction(Tile start, Tile end) {
+		
+		return true;
 	}
 }

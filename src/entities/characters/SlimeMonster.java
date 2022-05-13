@@ -59,6 +59,7 @@ public class SlimeMonster extends Monster {
 		} else {
 			attackCooldown--;
 			randomMovement();
+			this.lookForHero();
 		}
 
 		this.draw();
