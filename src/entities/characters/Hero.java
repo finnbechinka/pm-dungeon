@@ -49,9 +49,12 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	public Hero(Controller mc) {
 		super(200, .1f);
 		log.info("new hero instance created");
+		this.minRange = 0;
+		this.maxRange = 1.2;
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
 		this.mc = (Controller) mc;
+		this.attackCooldown = 0;
 		mc.updateHudHp(this.hp);
 	}
 
@@ -556,7 +559,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 				attackCooldown = weaponSlot.getAttackCooldown();
 			}
 			mc.heroAttack();
-			log.info("hero attacks");
+			log.fine("hero attacks");
 			this.setState(CharacterState.ATTACKING);
 		}
 
@@ -580,9 +583,6 @@ public class Hero extends Character implements IAnimatable, IEntity {
 				if(inventory[selectedSlot].getClass() == Bag.class && currentBag == null) {
 					currentBag = (Bag<?>) inventory[selectedSlot];
 					currentBag.showHud();
-				}else {
-					currentBag.removeHud();
-					currentBag = null;
 				}
 			}else if(currentBag != null){
 				currentBag.removeHud();
@@ -635,23 +635,20 @@ public class Hero extends Character implements IAnimatable, IEntity {
 	public double attack() {
 		log.info("hero attacks");
 		Random rdm = new Random();
-		if (rdm.nextBoolean() && attackCooldown <= 0) {
-			if (weaponSlot != null) {
-				return weaponSlot.getDmg() * 1.5;
-			} else {
-				attackCooldown = 20;
-				return 100;
+		if(this.weaponSlot != null) {
+			int roll = rdm.nextInt(100);
+			if(roll < this.weaponSlot.getAccuracy()) {
+				log.info("the hero successfully attacks with his weapon");
+				this.attackCooldown = this.weaponSlot.getAttackCooldown();
+				return this.weaponSlot.getDmg();
 			}
-		} else if (attackCooldown <= 0) {
-			if (weaponSlot != null) {
-				return weaponSlot.getDmg();
-			} else {
-				attackCooldown = 10;
-				return 5;
-			}
-		} else {
-			return 0;
+		}else if(this.attackCooldown <= 0) {
+			log.info("the hero attacks with his fists");
+			this.attackCooldown = 20;
+			return 50;
 		}
+		log.info("the hero fails to deal dmg");
+		return 0;			
 	}
 
 	@Override
@@ -746,6 +743,8 @@ public class Hero extends Character implements IAnimatable, IEntity {
 					this.inventory[slot] = oldWpn;
 					mc.hih.addHudItem(slot, oldWpn);
 				}
+				this.minRange = this.weaponSlot.getMinRange();
+				this.maxRange = this.weaponSlot.getMaxRange();
 				log.info("weapon equipped");
 				this.logInventory();
 			}else if(item.getClass().getSuperclass() == Armor.class) {
@@ -763,7 +762,7 @@ public class Hero extends Character implements IAnimatable, IEntity {
 					this.inventory[slot] = oldArmor;
 					mc.hih.addHudItem(slot, oldArmor);
 				}
-				log.info("weapon equipped");
+				log.info("armor equipped");
 				this.logInventory();
 			}
 		}

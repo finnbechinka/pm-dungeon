@@ -30,6 +30,8 @@ public abstract class Character implements IAnimatable, IEntity {
 	protected int attackCooldown = 30;
 	protected Controller mc;
 	protected int animationTimer = 0;
+	protected double minRange = 0;
+	protected double maxRange = 0;
 
 	public Character(double baseHp, float baseMovementSpeed) {
 		setupLogger();
@@ -37,6 +39,14 @@ public abstract class Character implements IAnimatable, IEntity {
 		this.baseMovementSpeed = baseMovementSpeed;
 		createAnimations();
 		state = CharacterState.IDLE;
+	}
+	
+	public double getMinRange() {
+		return this.minRange;
+	}
+	
+	public double getMaxRange() {
+		return this.maxRange;
 	}
 
 	public void setMainController(Controller mc) {
@@ -126,7 +136,6 @@ public abstract class Character implements IAnimatable, IEntity {
 	}
 
 	public void damage(double dmg) {
-		System.out.println("took " + dmg + " dmg");
 		this.hp -= dmg;
 		log.info("took damaged " + dmg);
 	}

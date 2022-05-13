@@ -10,6 +10,8 @@ public class SnakeMonster extends Monster {
 
 	public SnakeMonster() {
 		super(75, .125f);
+		this.minRange = 1.5;
+		this.maxRange = 2.5;
 		this.hp = baseHp;
 		this.movementSpeed = baseMovementSpeed;
 		log.info("new snake monster instance created");

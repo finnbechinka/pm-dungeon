@@ -110,7 +110,7 @@ Für Monster welche zwischen Nah- und Fernkampf wechseln können sollen, wird je
 * Kommentare/Dokumentation aktuallisieren
 * Code leserlicher machen z.B.: variablen namen ausbessern und bedingungen vereifnachen
 * Die Klassen Struktur verbessern
-* Datenstruktur der Kollisionserkennugn verbessern
+* Datenstruktur der Kollisionserkennung verbessern
 
 # Umsetzung
 
@@ -125,6 +125,14 @@ Bitte hier die Umsetzung der Lösung kurz beschreiben:
 ## 29.05.2021
 * Lerntagebuch/Modellierung
 
+## 30.05.2021
+* Aufgabe 6.1
+  * Neues Nah-/Fernkampf System implementiert
+  * Waffen haben unterschiedliche Reichweiten
+* Aufgabe 6.2
+  * 
+
+
 # Postmortem
 
 <!--
@@ -135,3 +143,4 @@ kritisch zurück:
 -   Wie haben Sie die Probleme letztlich gelöst?
 -->
 
+Wir hatten große Probleme die Überprüfung ob ein Monster den Helden sehen kann(bzw. pathfinding) zu implementieren und jetzt haben wir keine Zeit mehr also haben wir Aufgabe 6.2 und 6.3 nicht mehr geschafft.
